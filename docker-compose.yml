@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend/message-analyser-service
+      dockerfile: Dockerfile
+    container_name: message-analyser-service
+    ports:
+      - "8002:8002"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend/deceptiscan
+      dockerfile: Dockerfile
+    container_name: deceptiscan-frontend
+    ports:
+      - "8001:8001"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    restart: unless-stopped
+    depends_on:
+      - backend

@@ -1,0 +1,6 @@
+# frontend/anti-scam-mobile/.dockerignore
+node_modules
+.expo
+.git
+npm-debug.log
+.DS_Store
