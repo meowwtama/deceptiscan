@@ -5,8 +5,7 @@ import { getFirestore } from "firebase/firestore";
 
 require("dotenv").config();
 
-// 2. Your web app’s Firebase configuration
-//    Replace these values with YOUR actual config from Firebase Console → Project settings → General → “Firebase SDK snippet”
+// 2. Firebase configuration
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
   authDomain: process.env.FIREBASE_AUTH_DOMAIN,

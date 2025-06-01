@@ -1,13 +1,22 @@
-version: '3.8'
-
 services:
-  backend:
+  message-analyser-service:
     build:
       context: ./backend/message-analyser-service
       dockerfile: Dockerfile
     container_name: message-analyser-service
     ports:
       - "8002:8002"
+    restart: unless-stopped
+
+  history-service:
+    build:
+      context: ./backend/history-service
+      dockerfile: Dockerfile
+    container_name: history-service
+    ports:
+      - "8004:8004"
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=firebase-service-account.json
     restart: unless-stopped
 
   frontend:
@@ -22,4 +31,5 @@ services:
       - "19002:19002"
     restart: unless-stopped
     depends_on:
-      - backend
+      - message-analyser-service
+      - history-service
