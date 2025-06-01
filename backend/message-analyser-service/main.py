@@ -1,19 +1,32 @@
+# backend/message-analyser-service/main.py
+
 from fastapi import FastAPI
+from routes.messageRoutes import router as message_router
+from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
-app = FastAPI(title="My Simple FastAPI Service")
+load_dotenv()
 
+app = FastAPI(title="Message Analyser Service")
+
+# Allow CORS if needed (e.g. your Expo frontend on a different port)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # Adjust in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount the message routes under /message
+app.include_router(message_router, prefix="/message")
 
 @app.get("/health")
 async def health_check():
-    """
-    A simple GET endpoint that returns a JSON object indicating the service is up.
-    """
-    return {"status": "ok"}
+    return {"status": "message-analyser-service up"}
 
-
-@app.get("/hello")
-async def say_hello():
-    """
-    A second GET endpoint that returns a greeting.
-    """
-    return {"message": "Hello from FastAPI!"}
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8002))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
