@@ -1,0 +1,103 @@
+import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+
+export default function NewsTruthScreen() {
+  const [articleUrl, setArticleUrl] = useState('');
+
+  const handleCheckNews = () => {
+    console.log("Submitted article URL:", articleUrl);
+    // TODO: Add fetch logic to backend
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.label}>Enter a news article URL:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="https://news-site.com/article"
+          value={articleUrl}
+          onChangeText={setArticleUrl}
+        />
+
+        <View style={styles.divider} />
+
+        <Text style={styles.label}>Paste link from clipboard:</Text>
+          <TouchableOpacity style={styles.clipboardBox}>
+            <Ionicons name="clipboard-outline" size={40} color="#333" />
+          </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity style={styles.submitButton} onPress={handleCheckNews}>
+        <Text style={styles.submitText}>Submit</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#D9D9D9',
+    padding: 24,
+    alignItems: 'center',
+    paddingTop: 40,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 400,
+    marginBottom: 32,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#aaa',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 20,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 20,
+  },
+  clipboardBox: {
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#333',
+    borderRadius: 12,
+    padding: 24,
+    marginTop: 12,
+  },
+  clipboardIcon: {
+    width: 32,
+    height: 32,
+  },
+  submitButton: {
+    backgroundColor: '#007BFF',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 30,
+    alignSelf: 'center',
+  },
+  submitText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 const servicesList = [
   {
@@ -41,9 +40,18 @@ const servicesList = [
   },
 ];
 
-export default function ServicesScreen({ navigation }) {
+export default function ServicesScreen({ navigation, route }) {
+  useEffect(() => {
+    if (route?.params?.screen) {
+      navigation.navigate(route.params.screen);
+    }
+  }, [route?.params?.screen]);
+
   const renderServiceItem = ({ item }) => (
-    <TouchableOpacity style={styles.card} onPress={() => {}}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate(item.name)}
+    >
       <Image source={item.icon} style={styles.cardIcon} resizeMode="contain" />
       <Text style={styles.cardTitle}>{item.name}</Text>
       <Text style={styles.cardDesc}>{item.description}</Text>
@@ -94,14 +102,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   cardTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
     color: "#333",
     marginBottom: 4,
     textAlign: "center",
   },
   cardDesc: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#555",
     textAlign: "center",
   },

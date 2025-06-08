@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   Dimensions,
   Image,
   TouchableOpacity,
-  FlatList,
+  InteractionManager,
 } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -40,19 +40,34 @@ const trendingNews = [
   {
     id: "2",
     title:
-      "Fake Bank SMSes Target Thousands in new “OTP” phishing scam. How to protect yourself.",
+      'Fake Bank SMSes Target Thousands in new “OTP” phishing scam. How to protect yourself.',
     sourceLogo: require("../assets/ScamSign.png"),
   },
   {
     id: "3",
     title:
-      "Cryptocurrency rug-pulls ramp up. Learn how to spot fake token launches.",
+      "Phishing emails masquerading as delivery notifications on the rise.",
     sourceLogo: require("../assets/StraitsTimes.png"),
   },
 ];
 
+const serviceIcons = [
+  { key: "LinkGuard", icon: require("../assets/LinkGuard.png") },
+  { key: "RealOrRender", icon: require("../assets/RealOrRender.png") },
+  { key: "NewsTruth", icon: require("../assets/NewsTruth.png") },
+  { key: "ScamSniffer", icon: require("../assets/ScamSniffer.png") },
+];
+
 export default function HomeScreen({ navigation }) {
   const scrollRef = useRef(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const onCarouselScrollEnd = (e) => {
+    const offsetX = e.nativeEvent.contentOffset.x;
+    const pageWidth = SCREEN_WIDTH - 60;
+    const newIndex = Math.round(offsetX / pageWidth);
+    setActiveIndex(newIndex);
+  };
 
   const renderCarouselItem = (item) => (
     <View style={[styles.carouselItem, { width: SCREEN_WIDTH - 60 }]} key={item.id}>
@@ -62,7 +77,7 @@ export default function HomeScreen({ navigation }) {
   );
 
   const renderNewsItem = ({ item }) => (
-    <TouchableOpacity style={styles.newsCard}>
+    <TouchableOpacity style={styles.newsCard} key={item.id}>
       <View style={styles.newsCardHeader}>
         <Image source={item.sourceLogo} style={styles.newsLogo} resizeMode="contain" />
         <Text style={styles.newsTitle}>{item.title}</Text>
@@ -70,37 +85,32 @@ export default function HomeScreen({ navigation }) {
     </TouchableOpacity>
   );
 
-  const serviceIcons = [
-    { key: "LinkGuard", icon: require("../assets/LinkGuard.png") },
-    { key: "RealOrRender", icon: require("../assets/RealOrRender.png") },
-    { key: "NewsTruth", icon: require("../assets/NewsTruth.png") },
-    { key: "ScamSniffer", icon: require("../assets/ScamSniffer.png") },
-  ];
-
   return (
-    <View style={styles.container}>
-      {/* Boxed Card for Carousel + Icons + "View All" */}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.boxContainer}>
-        {/* 1) Carousel */}
+        {/* 1. Carousel */}
         <View style={styles.carouselContainer}>
           <ScrollView
             ref={scrollRef}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 30 }}
+            contentContainerStyle={{ paddingHorizontal: 15 }}
+            onMomentumScrollEnd={onCarouselScrollEnd}
           >
             {carouselData.map(renderCarouselItem)}
           </ScrollView>
           <View style={styles.paginationDots}>
-            {/* Simple static dots; you can make these dynamic */}
-            <View style={[styles.dot, styles.dotActive]} />
-            <View style={styles.dot} />
-            <View style={styles.dot} />
+            {carouselData.map((_, idx) => (
+              <View
+                key={idx}
+                style={[styles.dot, idx === activeIndex ? styles.dotActive : null]}
+              />
+            ))}
           </View>
         </View>
 
-        {/* "View All Services ›" */}
+        {/* 2. View All Services Link */}
         <TouchableOpacity
           style={styles.viewAllContainer}
           onPress={() => navigation.navigate("Services")}
@@ -108,13 +118,18 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.viewAllText}>View All Services ›</Text>
         </TouchableOpacity>
 
-        {/* 2) Row of service icons */}
+        {/* 3. Service Icons */}
         <View style={styles.iconRowContainer}>
           {serviceIcons.map((svc) => (
             <TouchableOpacity
               key={svc.key}
               style={styles.iconCircle}
-              onPress={() => navigation.navigate("Services")}
+              onPress={() => {
+                navigation.navigate("Services");
+                InteractionManager.runAfterInteractions(() => {
+                  navigation.navigate("Services", { screen: svc.key });
+                });
+              }}
             >
               <Image source={svc.icon} style={styles.iconImage} resizeMode="contain" />
             </TouchableOpacity>
@@ -122,34 +137,25 @@ export default function HomeScreen({ navigation }) {
         </View>
       </View>
 
-      {/* 3) Trending News Section */}
+      {/* 4. Trending News */}
       <View style={styles.trendingContainer}>
         <Text style={styles.trendingHeader}>Trending News Articles</Text>
-        <FlatList
-          data={trendingNews}
-          keyExtractor={(item) => item.id}
-          renderItem={renderNewsItem}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
-          showsVerticalScrollIndicator={false}
-        />
+        {trendingNews.map((item) => renderNewsItem({ item }))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  // Overall screen background
   container: {
     flex: 1,
     backgroundColor: "#e0e0e0",
-    paddingTop: 16,
   },
-
-  // The white "box" that holds carousel + icons + View All
   boxContainer: {
     backgroundColor: "#fff",
     borderRadius: 16,
     marginHorizontal: 16,
+    marginTop: 16,
     paddingBottom: 16,
     shadowColor: "#000",
     shadowOpacity: 0.1,
@@ -157,8 +163,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-
-  // Carousel area
   carouselContainer: {
     marginTop: 16,
   },
@@ -196,8 +200,6 @@ const styles = StyleSheet.create({
   dotActive: {
     backgroundColor: "#333",
   },
-
-  // "View All Services ›" link
   viewAllContainer: {
     alignSelf: "flex-end",
     marginRight: 24,
@@ -208,8 +210,6 @@ const styles = StyleSheet.create({
     color: "#FF8C00",
     fontWeight: "600",
   },
-
-  // Row of icons
   iconRowContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -233,16 +233,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
   },
-
-  // Trending News section
   trendingContainer: {
-    flex: 1,
     marginTop: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 40,
   },
   trendingHeader: {
     fontSize: 18,
     fontWeight: "700",
-    marginLeft: 24,
     marginBottom: 12,
     color: "#333",
   },
