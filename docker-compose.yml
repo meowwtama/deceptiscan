@@ -7,6 +7,19 @@ services:
     ports:
       - "8002:8002"
     restart: unless-stopped
+    depends_on:
+      - history-service
+
+  link-analyser-service:
+    build:
+      context: ./backend/link-analyser-service
+      dockerfile: Dockerfile
+    container_name: link-analyser-service
+    ports:
+      - "8003:8003"
+    restart: unless-stopped
+    depends_on:
+      - history-service
 
   history-service:
     build:
@@ -32,4 +45,5 @@ services:
     restart: unless-stopped
     depends_on:
       - message-analyser-service
+      - link-analyser-service
       - history-service

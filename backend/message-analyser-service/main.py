@@ -10,10 +10,9 @@ load_dotenv()
 
 app = FastAPI(title="Message Analyser Service")
 
-# Allow CORS if needed (e.g. your Expo frontend on a different port)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # Adjust in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
