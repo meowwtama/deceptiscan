@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://localhost:5003").rstrip("/")
+HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://localhost:8004").rstrip("/")
 
 def resolve_ip(hostname: str) -> str | None:
     try:

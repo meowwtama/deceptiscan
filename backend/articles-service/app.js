@@ -18,5 +18,5 @@ app.get("/health", (req, res) => res.json({ status: "articles-service up" }));
 // All /articles routes require auth
 app.use("/articles", verifyToken, articleRoutes);
 
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 8005;
 app.listen(PORT, () => console.log(`Articles Service listening on port ${PORT}`));

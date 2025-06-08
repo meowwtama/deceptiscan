@@ -41,6 +41,15 @@ services:
       - "8005:8005"
     restart: unless-stopped
 
+  ai-image-detector-service:
+    build:
+      context: ./backend/ai-image-detector-service
+      dockerfile: Dockerfile
+    container_name: ai-image-detector-service
+    ports:
+      - "8006:8006"
+    restart: unless-stopped
+    
   frontend:
     build:
       context: ./frontend/deceptiscan
