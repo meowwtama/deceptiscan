@@ -1,12 +1,10 @@
-from fastapi import Request
-from fastapi.responses import JSONResponse
+from fastapi import HTTPException, status
+from telegram_client import client
 from services.joinService import join_channel
 from services.scrapingService import scrape_messages
 from services.llmService import tele_analyse
 from services.leaveService import leave_group
 from services.savehistoryService import save_to_history
-from main import client
-from fastapi import HTTPException, status
 
 async def analyze_group(request_data: dict, decoded_token: dict):
     """

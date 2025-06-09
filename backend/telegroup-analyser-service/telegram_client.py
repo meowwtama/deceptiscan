@@ -1,13 +1,13 @@
-from telethon import TelegramClient
-import asyncio
 import os
+from telethon import TelegramClient
 from dotenv import load_dotenv
 
-# Setting up TelegramClient
+# Load environment variables from .env
 load_dotenv()
 
 api_id = int(os.getenv("TELEGRAM_API_ID"))
 api_hash = os.getenv("TELEGRAM_API_HASH")
 session_name = os.getenv("SESSION_NAME", "default_session")
 
-client = TelegramClient("my_session", api_id, api_hash)
+# Create the Telethon client
+client = TelegramClient(session_name, api_id, api_hash)

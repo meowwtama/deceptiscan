@@ -17,7 +17,7 @@ def save_to_history(
     HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL")
     if not HISTORY_SERVICE_URL.endswith("/"):
         HISTORY_SERVICE_URL = HISTORY_SERVICE_URL.rstrip("/")
-    
+
     url = f"{HISTORY_SERVICE_URL}/history/TeleAnalyser"
 
     payload = {
@@ -35,3 +35,4 @@ def save_to_history(
     resp = requests.post(url, json=payload, headers=headers, timeout=20)
     if resp.status_code != 201:
         return {"status":"error", "message":f"Failed to save to history: {resp.status_code} {resp.text}"}
+    return {"status":"success", "message":"Saved successfully"}

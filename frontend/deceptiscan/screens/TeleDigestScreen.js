@@ -1,46 +1,112 @@
 import React, { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../firebaseConfig';
+import { TELEGRAM_SERVICE_URL } from '../config';  // add this
 
 export default function TeleDigestScreen() {
-  const [message, setMessage] = useState('');
+  const [groupLink, setGroupLink] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [summary, setSummary] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = () => {
-    console.log("Submitted tele group link:", message);
-    // TODO: Add backend request here
+  const handleSubmit = async () => {
+    const trimmed = groupLink.trim();
+    if (!trimmed) {
+      setError('Please enter a Telegram group link.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSummary(null);
+
+    try {
+      // 1) Get your Firebase ID token
+      const user = auth.currentUser;
+      if (!user) throw new Error('You must be signed in.');
+      const idToken = await user.getIdToken();
+
+      // 2) POST to your FastAPI service
+      const resp = await fetch(
+        `${TELEGRAM_SERVICE_URL}/telegram/analyze`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ group_link: trimmed }),
+        }
+      );
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Server ${resp.status}: ${text}`);
+      }
+      const json = await resp.json();
+      setSummary(json.summary);
+    } catch (err) {
+      console.error('TeleDigest error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.label}>Enter a public group's t.me link:</Text>
+        <Text style={styles.label}>
+          Enter a public group's t.me link:
+        </Text>
         <TextInput
           style={styles.textArea}
           placeholder="e.g. scamgroup"
-          value={message}
-          onChangeText={setMessage}
+          value={groupLink}
+          onChangeText={setGroupLink}
           multiline
-          numberOfLines={4}
+          numberOfLines={2}
           textAlignVertical="top"
         />
 
         <View style={styles.divider} />
 
-        <Text style={styles.label}>Or simply paste from clipboard below:</Text>
+        <Text style={styles.label}>
+          Or paste from clipboard below:
+        </Text>
         <TouchableOpacity style={styles.clipboardBox}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, loading && { opacity: 0.6 }]}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitText}>Submit</Text>
+        )}
       </TouchableOpacity>
+
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      {summary && (
+        <View style={styles.resultBox}>
+          <Text style={styles.resultLabel}>Group Summary:</Text>
+          <Text style={styles.resultText}>{summary}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -71,7 +137,7 @@ const styles = StyleSheet.create({
     borderColor: '#aaa',
     borderRadius: 8,
     padding: 12,
-    minHeight: 100,
+    minHeight: 60,
     marginBottom: 20,
   },
   divider: {
@@ -98,5 +164,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  error: {
+    marginTop: 12,
+    color: 'red',
+    textAlign: 'center',
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    width: '100%',
+    maxWidth: 400,
+  },
+  resultLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  resultText: {
+    fontSize: 14,
   },
 });
