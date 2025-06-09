@@ -1,19 +1,48 @@
-import React, { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
-
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { auth } from "../firebaseConfig";
+import { LINK_ANALYSER_SERVICE_URL } from "../config";
 
 export default function LinkGuardScreen() {
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = () => {
-    console.log("Submitted URL:", url);
+  const handleSubmit = async () => {
+    if (!url) return;
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error("You must be signed in");
+
+      const idToken = await user.getIdToken();
+      const response = await fetch(`${LINK_ANALYSER_URL}/link/analyze`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Error ${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -23,21 +52,34 @@ export default function LinkGuardScreen() {
         <TextInput
           style={styles.input}
           placeholder="https://example.com"
+          autoCapitalize="none"
           value={url}
           onChangeText={setUrl}
         />
 
         <View style={styles.divider} />
 
-        <Text style={styles.label}>Or simply paste from clipboard below:</Text>
+        <Text style={styles.label}>Or paste from clipboard below:</Text>
         <TouchableOpacity style={styles.clipboardBox}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>
 
       <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitText}>Submit</Text>
+        )}
       </TouchableOpacity>
+
+      {error && <Text style={styles.error}>{error}</Text>}
+      {result && (
+        <View style={styles.resultBox}>
+          <Text>Safe? {result.safe ? "Yes" : "No"}</Text>
+          <Text>Issues: {result.issues.join(", ")}</Text>
+        </View>
+      )}
     </View>
   );
 }

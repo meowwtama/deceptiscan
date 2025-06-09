@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866507249447",
+    "project_id": "deceptiscan",
+    "storage_bucket": "deceptiscan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866507249447:android:27c2b7db2bd6f0d723fb02",
+        "android_client_info": {
+          "package_name": "com.yourcompany.deceptiscan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdkiqVAupKeW5Q-CEjshjIVwKgtLXeEfU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

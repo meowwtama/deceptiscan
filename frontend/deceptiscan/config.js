@@ -1,0 +1,23 @@
+export const MESSAGE_ANALYSER_SERVICE_URL = "http://localhost:8002";
+export const LINK_ANALYSER_SERVICE_URL    = "http://localhost:8003";
+export const HISTORY_SERVICE_URL          = "http://localhost:8004";
+export const ARTICLES_SERVICE_URL         = "http://localhost:8005";
+export const AI_IMAGE_DETECTOR_SERVICE_URL = "http://localhost:8006";
+
+FIREBASE_API_KEY="AIzaSyCSNlzhQBG3JeHgSKdZeMIHv85RwqSRAkY"
+FIREBASE_AUTH_DOMAIN="deceptiscan.firebaseapp.com"
+FIREBASE_PROJECT_ID="deceptiscan"
+FIREBASE_STORAGE_BUCKET="deceptiscan.firebasestorage.app"
+FIREBASE_MESSAGING_SENDER_ID="866507249447"
+FIREBASE_APP_ID="1:866507249447:web:c808cdce197a83a023fb02"
+FIREBASE_MESSAGING_SENDER_ID="G-6ERKSS4VDX"
+
+export const FIREBASE_CONFIG = {
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: "G-6ERKSS4VDX",
+};
