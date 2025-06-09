@@ -2,30 +2,31 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routes.imageRoutes import image_routes  # your route file
+from routes.imageRoutes import image_routes
 from dotenv import load_dotenv
 
 load_dotenv()
 
 app = FastAPI(title="AI Image Detector Service")
 
-# CORS (Optional: adjust origins as needed)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # change to your frontend URL in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount /images for accessing uploaded images
-if not os.path.exists("images"):
-    os.makedirs("images")
-
-app.mount("/images", StaticFiles(directory="images"), name="images")
-
-# Register your image routes
+# 1) Mount your upload & predict routes under /images
 app.include_router(image_routes, prefix="/images")
+
+# 2) Serve the actual image files under /images/files
+os.makedirs("images", exist_ok=True)
+app.mount(
+    "/images/files",
+    StaticFiles(directory="images"),
+    name="images_files"
+)
 
 @app.get("/health")
 async def health_check():
@@ -33,5 +34,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8002))
+    port = int(os.getenv("PORT", 8006))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

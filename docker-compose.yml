@@ -49,6 +49,8 @@ services:
     ports:
       - "8006:8006"
     restart: unless-stopped
+    depends_on:
+      - history-service
     
   frontend:
     build:

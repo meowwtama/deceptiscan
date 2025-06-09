@@ -46,11 +46,12 @@ def main(image_path, weights_folder):
     
     print(f'Predicted label: {predicted_label}')
     print(f'Class probabilities: {probabilities}')
+    return predicted_label, probabilities
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Predict an image using a trained model.')
     parser.add_argument('image_path', type=str, help='Path to the image file for prediction.')
-    parser.add_argument('--weights_folder', type=str, default='./controllers/models', help='Folder path for model weights. Defaults to ./models if not provided.')
+    parser.add_argument('--weights_folder', type=str, default='./models', help='Folder path for model weights. Defaults to ./models if not provided.')
 
     args = parser.parse_args()
     main(args.image_path, args.weights_folder)
