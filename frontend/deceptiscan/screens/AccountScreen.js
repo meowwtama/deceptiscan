@@ -14,8 +14,10 @@ export default function AccountScreen({ navigation }) {
   };
 
   const handleHistory = () => {
-    navigation.navigate("HistoryScreen");
-  };
+  navigation.navigate("Services", { 
+    screen: "OverallHistory"
+  });
+};
 
   return (
     <View style={styles.container}>

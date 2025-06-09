@@ -17,10 +17,13 @@ import NewsTruthScreen from "./screens/NewsTruthScreen";
 import ScamSnifferScreen from "./screens/ScamSnifferScreen";
 import TeleDigestScreen from "./screens/TeleDigestScreen";
 import ScamWiseScreen from "./screens/ScamWiseScreen";
+import OverallHistoryScreen from "./screens/OverallHistoryScreen";
+import ScamSnifferHistoryScreen from "./screens/ScamSnifferHistoryScreen";
 
 const RootStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 const ServicesStack = createStackNavigator();
+const HistoryStack = createStackNavigator();
 
 function ServicesStackScreen() {
   return (
@@ -32,6 +35,16 @@ function ServicesStackScreen() {
       <ServicesStack.Screen name="ScamSniffer" component={ScamSnifferScreen} />
       <ServicesStack.Screen name="TeleDigest" component={TeleDigestScreen} />
       <ServicesStack.Screen name="ScamWise" component={ScamWiseScreen} />
+      <ServicesStack.Screen 
+        name="OverallHistory" 
+        component={OverallHistoryScreen}
+        options={{ title: "History" }}
+      />
+      <ServicesStack.Screen 
+        name="ScamSniffer History" 
+        component={ScamSnifferHistoryScreen}
+        options={{ title: "Message History" }}
+      />
     </ServicesStack.Navigator>
   );
 }
