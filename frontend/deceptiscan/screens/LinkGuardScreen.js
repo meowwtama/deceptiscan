@@ -21,7 +21,7 @@ export default function LinkGuardScreen() {
       if (!user) throw new Error("You must be signed in");
 
       const idToken = await user.getIdToken();
-      const response = await fetch(`${LINK_ANALYSER_URL}/link/analyze`, {
+      const response = await fetch(`${LINK_ANALYSER_SERVICE_URL}/link/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
