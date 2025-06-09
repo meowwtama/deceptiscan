@@ -1,42 +1,176 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../firebaseConfig';
+import { AI_IMAGE_DETECTOR_SERVICE_URL } from '../config';
 
 export default function RealOrRenderScreen() {
-  const [image, setImage] = useState(null);
+  const [localUri, setLocalUri] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [prediction, setPrediction] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleUpload = () => {
-    console.log("Image upload tapped");
-    // Implement image picker or clipboard paste logic here
+  // 0. Always ask permission on mount (all platforms)
+  useEffect(() => {
+    (async () => {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission required',
+          'We need permission to access your photos to upload images.'
+        );
+      }
+    })();
+  }, []);
+
+  // 1. Pick an image
+  const handleUpload = async () => {
+    setPrediction(null);
+    setError(null);
+    console.log('Opening image picker…');
+
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+      });
+
+      if (result.cancelled) {
+        console.log('ImagePicker cancelled');
+        return;
+      }
+      const uri =
+        result.uri ?? // old versions
+        (Array.isArray(result.assets) && result.assets[0].uri); // new versions
+
+      if (!uri) {
+        console.error('Could not find URI in picker result', result);
+        Alert.alert('Error', 'Could not read the selected image.');
+        return;
+      }
+
+      console.log('Picked image URI:', uri);
+      setLocalUri(uri);
+    } catch (e) {
+      console.error('Error launching image picker:', e);
+      Alert.alert('Error', 'Could not open image library.');
+    }
   };
 
-  const handleSubmit = () => {
-    console.log("Submit tapped with image:", image);
-    // Implement fetch to backend
+  // 2. Upload + predict
+  const handleSubmit = async () => {
+    if (!localUri) {
+      Alert.alert('No image', 'Please pick an image first.');
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+    setPrediction(null);
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('You must be signed in');
+      const idToken = await user.getIdToken();
+
+      // prepare form-data
+      const filename = localUri.split('/').pop();
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image';
+
+      const form = new FormData();
+      form.append('file', { uri: localUri, name: filename, type });
+
+      console.log('Uploading to', `${AI_IMAGE_DETECTOR_SERVICE_URL}/images/upload`);
+      let resp = await fetch(
+        `${AI_IMAGE_DETECTOR_SERVICE_URL}/images/upload`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: form,
+        }
+      );
+      if (!resp.ok) throw new Error(`Upload failed: ${resp.status}`);
+      const { filename: savedName } = await resp.json();
+      console.log('Upload success:', savedName);
+
+      // now predict
+      console.log(
+        'Predicting via',
+        `${AI_IMAGE_DETECTOR_SERVICE_URL}/images/predict/${savedName}`
+      );
+      resp = await fetch(
+        `${AI_IMAGE_DETECTOR_SERVICE_URL}/images/predict/${savedName}`,
+        {
+          method: 'GET',
+          headers: { Authorization: `Bearer ${idToken}` },
+        }
+      );
+      if (!resp.ok) throw new Error(`Predict failed: ${resp.status}`);
+      const json = await resp.json();
+      console.log('Prediction:', json);
+      setPrediction(json);
+    } catch (e) {
+      console.error('handleSubmit error:', e);
+      setError(e.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.label}>Upload an image to check for AI usage:</Text>
+        <Text style={styles.label}>
+          Upload an image to check for AI usage:
+        </Text>
 
         <TouchableOpacity style={styles.imageBox} onPress={handleUpload}>
-          <Image
-            source={require('../assets/AddImage.png')} 
-            style={styles.uploadIcon}
-            resizeMode="contain"
-          />
+          {localUri ? (
+            <Image source={{ uri: localUri }} style={styles.preview} />
+          ) : (
+            <Ionicons name="camera" size={48} color="#888" />
+          )}
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, uploading && { opacity: 0.6 }]}
+        onPress={handleSubmit}
+        disabled={uploading}
+      >
+        {uploading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitText}>Submit</Text>
+        )}
       </TouchableOpacity>
+
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      {prediction && (
+        <View style={styles.resultBox}>
+          <Text style={styles.resultText}>
+            Label: {prediction.predicted_label}
+          </Text>
+          <Text style={styles.resultText}>
+            Confidence: {prediction.probabilities.join(', ')}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -46,14 +180,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#D9D9D9',
     padding: 24,
-    paddingTop: 40, 
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: '700',
-    alignSelf: 'center',
-    marginBottom: 24,
-    color: '#333',
+    paddingTop: 40,
   },
   card: {
     backgroundColor: '#fff',
@@ -65,7 +192,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 20,
-    color: '#333',
   },
   imageBox: {
     backgroundColor: '#f9f9f9',
@@ -76,9 +202,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
   },
-  uploadIcon: {
-    width: 72,
-    height: 72,
+  preview: {
+    width: 160,
+    height: 160,
+    borderRadius: 8,
   },
   submitButton: {
     backgroundColor: '#007BFF',
@@ -91,5 +218,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  error: {
+    marginTop: 12,
+    color: 'red',
+    textAlign: 'center',
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  resultText: {
+    fontSize: 14,
+    marginBottom: 4,
   },
 });

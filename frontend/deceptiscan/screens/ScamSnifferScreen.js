@@ -1,25 +1,72 @@
 import React, { useState } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { auth } from '../firebaseConfig';
+import { MESSAGE_ANALYSER_SERVICE_URL } from '../config';
 
 export default function ScamSnifferScreen() {
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = () => {
-    console.log("Submitted message:", message);
-    // TODO: Add backend request here
+  const handleSubmit = async () => {
+    if (!message.trim()) {
+      setError('Please enter a message to analyze.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      // 1) get current user & ID token
+      const user = auth.currentUser;
+      if (!user) throw new Error('You must be signed in');
+      const idToken = await user.getIdToken();
+
+      // 2) call your backend
+      const resp = await fetch(
+        `${MESSAGE_ANALYSER_SERVICE_URL}/message/analyze`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${idToken}`,
+          },
+          body: JSON.stringify({ message }),
+        }
+      );
+
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw new Error(`Server error ${resp.status}: ${text}`);
+      }
+
+      const json = await resp.json();
+      setResult(json);
+    } catch (err) {
+      console.error('ScamSniffer error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.label}>Enter a message to check if it is a scam:</Text>
+        <Text style={styles.label}>
+          Enter a message to check if it is a scam:
+        </Text>
         <TextInput
           style={styles.textArea}
           placeholder="e.g. You've won a prize! Click this link..."
@@ -32,15 +79,38 @@ export default function ScamSnifferScreen() {
 
         <View style={styles.divider} />
 
-        <Text style={styles.label}>Or simply paste from clipboard below:</Text>
+        <Text style={styles.label}>
+          Or paste from clipboard below:
+        </Text>
         <TouchableOpacity style={styles.clipboardBox}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Submit</Text>
+      <TouchableOpacity
+        style={[styles.submitButton, loading && { opacity: 0.6 }]}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitText}>Submit</Text>
+        )}
       </TouchableOpacity>
+
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      {result && (
+        <View style={styles.resultBox}>
+          <Text style={styles.resultText}>
+            Classification: {result.classification}
+          </Text>
+          <Text style={styles.resultText}>
+            Summary: {result.summary}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -98,5 +168,20 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  error: {
+    marginTop: 12,
+    color: 'red',
+    textAlign: 'center',
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+  },
+  resultText: {
+    fontSize: 14,
+    marginBottom: 8,
   },
 });

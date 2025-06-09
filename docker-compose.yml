@@ -51,6 +51,17 @@ services:
     restart: unless-stopped
     depends_on:
       - history-service
+
+  telegroup-analyser-service:
+    build:
+      context: ./backend/telegroup-analyser-service
+      dockerfile: Dockerfile
+    container_name: telegroup-analyser-service
+    ports:
+      - "8007:8007"
+    restart: unless-stopped
+    depends_on:
+      - history-service
     
   frontend:
     build:
