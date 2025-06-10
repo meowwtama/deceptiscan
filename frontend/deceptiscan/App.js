@@ -1,111 +1,56 @@
-import "react-native-gesture-handler";
-import React, { useEffect } from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+// App.js
+import 'react-native-gesture-handler';
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator }    from '@react-navigation/stack';
+import { auth }                     from './firebaseConfig';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 
-import { auth } from "./firebaseConfig";
+// Auth screens
+import LoginScreen  from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
 
-// Screens
-import HomeScreen from "./screens/HomeScreen";
-import ServicesScreen from "./screens/ServicesScreen";
-import AccountScreen from "./screens/AccountScreen";
-import LinkGuardScreen from "./screens/LinkGuardScreen";
-import RealOrRenderScreen from "./screens/RealOrRenderScreen";
-import NewsTruthScreen from "./screens/NewsTruthScreen";
-import ScamSnifferScreen from "./screens/ScamSnifferScreen";
-import TeleDigestScreen from "./screens/TeleDigestScreen";
-import ScamWiseScreen from "./screens/ScamWiseScreen";
-import NewsArticleScreen from "./screens/NewsArticleScreen";
+// Main screens (wrapped in MainTabs)
+import MainTabs             from './MainTabs';
 
-//History Screens
-import OverallHistoryScreen from "./screens/OverallHistoryScreen";
-import ScamSnifferHistoryScreen from "./screens/ScamSnifferHistoryScreen";
-import LinkGuardHistoryScreen from "./screens/LinkGuardHistoryScreen";
-import TeleDigestHistoryScreen from "./screens/TeleDigestHistoryScreen";
-import RealOrRenderHistoryScreen from "./screens/RealOrRenderHistoryScreen";
-
-const RootStack = createStackNavigator();
-const Tab = createBottomTabNavigator();
-const ServicesStack = createStackNavigator();
-const HistoryStack = createStackNavigator();
-
-// Services Tab Stack
-function ServicesStackScreen() {
-  return (
-    <ServicesStack.Navigator screenOptions={{ headerShown: true }}>
-      <ServicesStack.Screen name="ServicesHome" component={ServicesScreen} options={{ title: "Services" }} />
-      <ServicesStack.Screen name="LinkGuard" component={LinkGuardScreen} />
-      <ServicesStack.Screen name="RealOrRender" component={RealOrRenderScreen} />
-      <ServicesStack.Screen name="NewsTruth" component={NewsTruthScreen} />
-      <ServicesStack.Screen name="ScamSniffer" component={ScamSnifferScreen} />
-      <ServicesStack.Screen name="TeleDigest" component={TeleDigestScreen} />
-      <ServicesStack.Screen name="ScamWise" component={ScamWiseScreen} />
-      <ServicesStack.Screen name="NewsArticle" component={NewsArticleScreen} options={{ title: "Article" }} />
-    </ServicesStack.Navigator>
-
-  );
-}
-
-// History Stack
-function HistoryStackScreen() {
-  return (
-    <HistoryStack.Navigator screenOptions={{ headerShown: true }}>
-      <HistoryStack.Screen name="OverallHistory" component={OverallHistoryScreen} options={{ title: "History" }} />
-      <HistoryStack.Screen name="ScamSniffer History" component={ScamSnifferHistoryScreen} options={{ title: "Message History" }} />
-      <HistoryStack.Screen name="LinkGuard History" component={LinkGuardHistoryScreen} options={{ title: "Message History" }} />
-      <HistoryStack.Screen name="TeleDigest History" component={TeleDigestHistoryScreen}options={{ title: "Telegram Group History" }}/>
-      <HistoryStack.Screen name="RealOrRender History" component={RealOrRenderHistoryScreen}options={{ title: "Image Analysis History" }}/>
-    </HistoryStack.Navigator>
-  );
-}
-
-// Main bottom tab
-function MainTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-          if (route.name === "Home") iconName = "home-outline";
-          else if (route.name === "Services") iconName = "grid-outline";
-          else if (route.name === "Account") iconName = "person-outline";
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: "#FF8C00",
-        tabBarInactiveTintColor: "gray",
-        headerShown: true,
-      })}
-    >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Services" component={ServicesStackScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Account" component={AccountScreen} />
-    </Tab.Navigator>
-  );
-}
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [initializing, setInitializing] = useState(true);
+
   useEffect(() => {
+    // Auto‐anonymous in case of no user yet
     if (!auth.currentUser) {
-      auth.signInAnonymously()
-        .then(() => console.log("Signed in anonymously"))
-        .catch((err) => console.error("Anonymous sign-in failed:", err));
+      signInAnonymously(auth).catch(console.error);
     }
-
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log("Auth state changed:", user?.uid);
+    // Subscribe to auth changes
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (initializing) setInitializing(false);
     });
-
-    return unsubscribe;
+    return unsub;
   }, []);
+
+  // While we wait for Firebase to tell us if there's a user:
+  if (initializing) return null;
 
   return (
     <NavigationContainer>
-      <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Account" component={MainTabs} />
-        <RootStack.Screen name="HistoryStack" component={HistoryStackScreen} />
-      </RootStack.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {/** If no user, show Auth flow **/}
+        {!user ? (
+          <>
+            <Stack.Screen name="Login"  component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+          </>
+        ) : (
+          <>
+            {/** Once signed in, show Main and History stacks **/}
+            <Stack.Screen name="Main"           component={MainTabs} />
+          </>
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
