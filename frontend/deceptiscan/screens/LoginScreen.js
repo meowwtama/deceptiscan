@@ -7,6 +7,7 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import * as Google from 'expo-auth-session/providers/google';
 import * as Application from 'expo-application';
+import { EXPO_WEB_CLIENT_ID, IOS_CLIENT_ID } from '../config';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -27,8 +28,8 @@ export default function LoginScreen({ navigation }) {
 
   // 2) Google Sign-In
   const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: '<YOUR_EXPO_WEB_CLIENT_ID>',
-    iosClientId: '<YOUR_IOS_CLIENT_ID>',
+    expoClientId: EXPO_WEB_CLIENT_ID,
+    iosClientId: IOS_CLIENT_ID,
     androidClientId: '<YOUR_ANDROID_CLIENT_ID>',
     webClientId: '<YOUR_WEB_CLIENT_ID>',
   });
