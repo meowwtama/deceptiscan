@@ -3,6 +3,8 @@ services:
     build:
       context: ./backend/message-analyser-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/message-analyser-service/.env
     container_name: message-analyser-service
     ports:
       - "8002:8002"
@@ -14,6 +16,8 @@ services:
     build:
       context: ./backend/link-analyser-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/link-analyser-service/.env
     container_name: link-analyser-service
     ports:
       - "8003:8003"
@@ -25,6 +29,8 @@ services:
     build:
       context: ./backend/history-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/history-service/.env
     container_name: history-service
     ports:
       - "8004:8004"
@@ -36,6 +42,8 @@ services:
     build:
       context: ./backend/articles-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/articles-service/.env
     container_name: articles-service
     ports:
       - "8005:8005"
@@ -45,6 +53,8 @@ services:
     build:
       context: ./backend/ai-image-detector-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/ai-image-detector-service/.env
     container_name: ai-image-detector-service
     ports:
       - "8006:8006"
@@ -70,6 +80,8 @@ services:
     build:
       context: ./backend/fake-news-detector-service
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/fake-news-detector-service/.env
     container_name: fake-news-detector-service
     ports:
       - "8008:8008"
