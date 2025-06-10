@@ -62,6 +62,17 @@ services:
     restart: unless-stopped
     depends_on:
       - history-service
+  
+  fake-news-detector-service:
+    build:
+      context: ./backend/fake-news-detector-service
+      dockerfile: Dockerfile
+    container_name: fake-news-detector-service
+    ports:
+      - "8008:8008"
+    restart: unless-stopped
+    depends_on:
+      - history-service
     
   frontend:
     build:

@@ -16,12 +16,12 @@ PORT = int(os.getenv("PORT", 8007))  # your default port
 # Lifespan context to start/stop Telegram client
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🟢 Starting Telegram client…")
+    print("Starting Telegram client…")
     await client.start()
     me = await client.get_me()
-    print(f"✅ Logged in as {me.username or me.first_name}")
+    print(f"Logged in as {me.username or me.first_name}")
     yield
-    print("🔴 Shutting down Telegram client…")
+    print("Shutting down Telegram client…")
     await client.disconnect()
 
 # Create the FastAPI app with our lifespan
