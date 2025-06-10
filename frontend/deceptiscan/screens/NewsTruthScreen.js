@@ -43,7 +43,7 @@ export default function NewsTruthScreen() {
           'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ 
-          news_url: articleUrl // Change from url to news_url to match backend
+          url: articleUrl  // Changed from news_url to url to match backend
         }),
       });
 

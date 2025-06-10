@@ -16,4 +16,5 @@ async def analyze_article_endpoint(request: Request, payload: dict, decoded=Depe
     # Pass it into analyze_group by tacking onto payload
     payload["rawAuthHeader"] = raw_auth
 
-    return await analyze_article_flow(payload, decoded)
+    # Remove await since analyze_article_flow is not async
+    return analyze_article_flow(payload, decoded)

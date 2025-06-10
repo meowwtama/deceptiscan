@@ -66,11 +66,13 @@ export default function LinkGuardHistoryScreen() {
 
     return (
       <View style={styles.historyCard}>
-        <Text style={styles.messageText}>Message: {item.originalMessage}</Text>
-        <Text style={styles.classificationText}>
-          Classification: {item.classification}
+        <Text style={styles.urlText}>URL: {item.url}</Text>
+        <Text style={styles.safetyText}>
+          Safe: {item.safe ? "Yes" : "No"}
         </Text>
-        <Text style={styles.summaryText}>Summary: {item.summary}</Text>
+        <Text style={styles.issuesText}>
+          Issues: {item.issues?.join(", ")}
+        </Text>
         <Text style={styles.dateText}>{dateString}</Text>
       </View>
     );
@@ -142,6 +144,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   summaryText: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+  },
+  urlText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 8,
+  },
+  safetyText: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+  },
+  issuesText: {
     fontSize: 14,
     color: "#666",
     marginBottom: 8,
