@@ -62,7 +62,10 @@ services:
     restart: unless-stopped
     depends_on:
       - history-service
-  
+    volumes:
+      - ./backend/telegroup-analyser-service:/app
+    env_file:
+      - ./backend/telegroup-analyser-service/.env
   fake-news-detector-service:
     build:
       context: ./backend/fake-news-detector-service
