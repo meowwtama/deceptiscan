@@ -5,6 +5,7 @@ const historyList = [
   {
     id: "1",
     name: "LinkGuard History",
+    route: "LinkGuard History", 
     description: "Past URL analysis results",
     icon: require("../assets/LinkGuard.png"),
   },
