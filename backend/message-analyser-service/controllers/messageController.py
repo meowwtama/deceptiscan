@@ -15,7 +15,7 @@ if not GROQ_API_KEY:
 client = Groq(api_key=GROQ_API_KEY)
 
 # History Service config
-HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://localhost:8004")
+HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://0.0.0.0:8004")
 if not HISTORY_SERVICE_URL.endswith("/"):
     HISTORY_SERVICE_URL = HISTORY_SERVICE_URL.rstrip("/")
 

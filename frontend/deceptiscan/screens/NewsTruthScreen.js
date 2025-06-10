@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { FAKE_NEWS_DETECTOR_URL } from '../config';
 
@@ -17,6 +18,16 @@ export default function NewsTruthScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const handleClipboardPaste = async () => {
+      try {
+        const text = await Clipboard.getStringAsync();
+        if (text) setArticleUrl(text);
+      } catch (e) {
+        console.error("Clipboard read failed:", e);
+        setError("Failed to read from clipboard.");
+      }
+    };
 
   const handleCheckNews = async () => {
     if (!articleUrl.trim()) {
@@ -76,8 +87,8 @@ export default function NewsTruthScreen() {
 
         <View style={styles.divider} />
 
-        <Text style={styles.label}>Paste link from clipboard:</Text>
-        <TouchableOpacity style={styles.clipboardBox}>
+        <Text style={styles.label}>Or paste from clipboard below:</Text>
+        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>

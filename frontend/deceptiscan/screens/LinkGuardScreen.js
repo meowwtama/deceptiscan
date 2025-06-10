@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ScrollView } from "react-native";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
 import { auth } from "../firebaseConfig";
 import { LINK_ANALYSER_SERVICE_URL } from "../config";
 
@@ -10,6 +11,16 @@ export default function LinkGuardScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const handleClipboardPaste = async () => {
+    try {
+      const text = await Clipboard.getStringAsync();
+      if (text) setUrl(text);
+    } catch (e) {
+      console.error("Clipboard read failed:", e);
+      setError("Failed to read from clipboard.");
+    }
+  };
 
   const handleSubmit = async () => {
     if (!url) return;
@@ -64,7 +75,7 @@ export default function LinkGuardScreen() {
         <View style={styles.divider} />
 
         <Text style={styles.label}>Or paste from clipboard below:</Text>
-        <TouchableOpacity style={styles.clipboardBox}>
+        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>

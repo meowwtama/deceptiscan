@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { MESSAGE_ANALYSER_SERVICE_URL } from '../config';
 
@@ -17,6 +18,16 @@ export default function ScamSnifferScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const handleClipboardPaste = async () => {
+      try {
+        const text = await Clipboard.getStringAsync();
+        if (text) setMessage(text);
+      } catch (e) {
+        console.error("Clipboard read failed:", e);
+        setError("Failed to read from clipboard.");
+      }
+    };
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -86,7 +97,7 @@ export default function ScamSnifferScreen() {
         <Text style={styles.label}>
           Or paste from clipboard below:
         </Text>
-        <TouchableOpacity style={styles.clipboardBox}>
+        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>

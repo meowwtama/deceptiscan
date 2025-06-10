@@ -3,7 +3,7 @@ import requests
 from controllers.src.main import main as predict_image
 from fastapi import HTTPException, status
 
-HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://localhost:8004")
+HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://0.0.0.0:8004")
 if not HISTORY_SERVICE_URL.endswith("/"):
     HISTORY_SERVICE_URL = HISTORY_SERVICE_URL.rstrip("/")
 
