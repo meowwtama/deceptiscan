@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ScrollView } from "react-native";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../firebaseConfig";
@@ -46,7 +47,10 @@ export default function LinkGuardScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.card}>
         <Text style={styles.label}>Enter a URL to check:</Text>
         <TextInput
@@ -80,7 +84,7 @@ export default function LinkGuardScreen() {
           <Text>Issues: {result.issues.join(", ")}</Text>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -88,9 +92,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9D9D9',
+  },
+  scrollContent: {
     padding: 24,
-    alignItems: 'center',     
-    paddingTop: 40,        
+    paddingTop: 40,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#fff',

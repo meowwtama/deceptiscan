@@ -6,3 +6,4 @@ requests==2.31.0
 groq==0.26.0
 beautifulsoup4==4.13.4
 newspaper3k==0.2.8
+lxml[html_clean]>=5.1.0

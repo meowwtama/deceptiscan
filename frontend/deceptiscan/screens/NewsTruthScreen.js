@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ScrollView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import {
   View,
@@ -6,19 +7,68 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
+import { auth } from '../firebaseConfig';
+import { FAKE_NEWS_DETECTOR_URL } from '../config';
 
 export default function NewsTruthScreen() {
   const [articleUrl, setArticleUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
-  const handleCheckNews = () => {
-    console.log("Submitted article URL:", articleUrl);
-    // TODO: Add fetch logic to backend
+  const handleCheckNews = async () => {
+    if (!articleUrl.trim()) {
+      setError('Please enter a news article URL');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('You must be signed in');
+      const idToken = await user.getIdToken();
+
+      console.log('Making request to:', `${FAKE_NEWS_DETECTOR_URL}/news/analyze`);
+      console.log('With URL:', articleUrl);
+
+      const response = await fetch(`${FAKE_NEWS_DETECTOR_URL}/news/analyze`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ 
+          news_url: articleUrl // Change from url to news_url to match backend
+        }),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Server response:', text);
+        throw new Error(`Error ${response.status}: ${text}`);
+      }
+
+      const data = await response.json();
+      console.log('Response data:', data);
+      setResult(data);
+    } catch (err) {
+      console.error('NewsTruth error details:', err);
+      setError(err.message || 'Network request failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.card}>
         <Text style={styles.label}>Enter a news article URL:</Text>
         <TextInput
@@ -26,20 +76,42 @@ export default function NewsTruthScreen() {
           placeholder="https://news-site.com/article"
           value={articleUrl}
           onChangeText={setArticleUrl}
+          autoCapitalize="none"
         />
 
         <View style={styles.divider} />
 
         <Text style={styles.label}>Paste link from clipboard:</Text>
-          <TouchableOpacity style={styles.clipboardBox}>
-            <Ionicons name="clipboard-outline" size={40} color="#333" />
-          </TouchableOpacity>
+        <TouchableOpacity style={styles.clipboardBox}>
+          <Ionicons name="clipboard-outline" size={40} color="#333" />
+        </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleCheckNews}>
-        <Text style={styles.submitText}>Submit</Text>
+      <TouchableOpacity 
+        style={[styles.submitButton, loading && { opacity: 0.6 }]}
+        onPress={handleCheckNews}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.submitText}>Submit</Text>
+        )}
       </TouchableOpacity>
-    </View>
+
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      {result && (
+        <View style={styles.resultBox}>
+          <Text style={styles.resultText}>
+            Confidence Score: {result.score}/100
+          </Text>
+          <Text style={styles.resultText}>
+            Analysis: {result.explanation}
+          </Text>
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
@@ -47,9 +119,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9D9D9',
+  },
+  scrollContent: {
     padding: 24,
-    alignItems: 'center',
     paddingTop: 40,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#fff',

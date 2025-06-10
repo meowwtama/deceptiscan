@@ -19,6 +19,7 @@ const historyList = [
   {
     id: "3",
     name: "NewsTruth History",
+    route: "NewsTruth History",
     description: "Past article verifications",
     icon: require("../assets/NewsTruth.png"),
   },

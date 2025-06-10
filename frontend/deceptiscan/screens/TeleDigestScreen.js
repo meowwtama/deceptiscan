@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -62,7 +63,10 @@ export default function TeleDigestScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.card}>
         <Text style={styles.label}>
           Enter a public group's t.me link:
@@ -107,7 +111,7 @@ export default function TeleDigestScreen() {
           <Text style={styles.resultText}>{summary}</Text>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -115,9 +119,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9D9D9',
+  },
+  scrollContent: {
     padding: 24,
-    alignItems: 'center',
     paddingTop: 40,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#fff',

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -132,7 +133,10 @@ export default function RealOrRenderScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.card}>
         <Text style={styles.label}>
           Upload an image to check for AI usage:
@@ -171,7 +175,7 @@ export default function RealOrRenderScreen() {
           </Text>
         </View>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -179,8 +183,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#D9D9D9',
+  },
+  scrollContent: {
     padding: 24,
     paddingTop: 40,
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#fff',
