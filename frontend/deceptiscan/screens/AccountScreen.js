@@ -7,14 +7,16 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { auth } from '../firebaseConfig';
 
 export default function AccountScreen({ navigation }) {
   const handleLogout = () => {
+    auth.signOut();
     Alert.alert("Logged out", "You have been logged out.");
   };
 
   const handleHistory = () => {
-    navigation.navigate("HistoryStack"); // Navigate to root stack screen
+    navigation.navigate("HistoryStack");
   };
 
   return (
