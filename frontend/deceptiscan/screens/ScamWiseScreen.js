@@ -6,12 +6,13 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  Alert
 } from 'react-native';
 
 const resources = [
   {
     id: '1',
-    title: "ScamShield: Singapore’s Official Scam-Blocking App",
+    title: "ScamShield: Singapore's Official Scam-Blocking App",
     description:
       "ScamShield, developed by the National Crime Prevention Council (NCPC) and the Open Government Products team, helps users detect scam messages and block calls ...",
     tag: 'News',
@@ -19,7 +20,7 @@ const resources = [
   },
   {
     id: '2',
-    title: "NCPC’s “Spot the Signs. Stop the Crimes.” Campaign",
+    title: "NCPC's 'Spot the Signs. Stop the Crimes.' Campaign",
     description:
       'The NCPC launched the "Spot the Signs. Stop the Crimes." campaign to help people recognize common scam tactics such as impersonation, false job offers, or fake ...',
     tag: 'News',
@@ -27,15 +28,27 @@ const resources = [
   },
   {
     id: '3',
-    title: "Singapore Police Force’s “Scam Alert” Videos",
+    title: "Singapore Police Force's 'Scam Alert' Videos",
     description:
-      'The Singapore Police Force regularly releases videos under the “Scam Alert” initiative to show real-life scam scenarios and how people fall victim. These videos aim to raise ...',
+      'The Singapore Police Force regularly releases videos under the "Scam Alert" initiative to show real-life scam scenarios and how people fall victim. These videos aim to raise ...',
     tag: 'Video',
     image: require('../assets/sw3.png'),
   },
 ];
 
 export default function ScamWiseScreen({ navigation }) {
+  const handleViewPress = (item) => {
+    if (item.id === '1') {
+      navigation.navigate('NewsArticle', { articleId: item.id });
+    } else {
+      Alert.alert(
+        'Information',
+        'This is a sample resource. Only the first article has detailed content.',
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
   const renderItem = ({ item }) => {
     const backgroundColor = item.tag === 'Video' ? '#FFE2CC' : '#D6E4FF';
 
@@ -47,7 +60,7 @@ export default function ScamWiseScreen({ navigation }) {
           <Text style={styles.cardDescription}>{item.description}</Text>
           <TouchableOpacity
             style={styles.viewButton}
-            onPress={() => navigation.navigate('NewsArticle', { articleId: item.id })}
+            onPress={() => handleViewPress(item)}
           >
             <Text style={styles.viewButtonText}>View</Text>
           </TouchableOpacity>
@@ -73,6 +86,7 @@ export default function ScamWiseScreen({ navigation }) {
   );
 }
 
+// Your existing styles remain the same
 const styles = StyleSheet.create({
   container: {
     flex: 1,

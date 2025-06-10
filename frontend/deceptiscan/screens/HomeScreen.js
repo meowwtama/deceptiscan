@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   InteractionManager,
+  Linking,
 } from "react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -33,9 +34,9 @@ const carouselData = [
 const trendingNews = [
   {
     id: "1",
-    title:
-      "Scam tracker: What are the latest trends in Singapore and how much money has been lost?",
+    title: "Scam tracker: What are the latest trends in Singapore and how much money has been lost?",
     sourceLogo: require("../assets/StraitsTimes.png"),
+    url: "https://www.straitstimes.com/singapore/scam-tracker-what-are-the-latest-trends-in-spore-and-how-much-money-has-been-lost"
   },
   {
     id: "2",
@@ -77,7 +78,15 @@ export default function HomeScreen({ navigation }) {
   );
 
   const renderNewsItem = ({ item }) => (
-    <TouchableOpacity style={styles.newsCard} key={item.id}>
+    <TouchableOpacity
+      style={styles.newsCard}
+      key={item.id}
+      onPress={() => {
+        if (item.url) {
+          Linking.openURL(item.url);
+        }
+      }}
+    >
       <View style={styles.newsCardHeader}>
         <Image source={item.sourceLogo} style={styles.newsLogo} resizeMode="contain" />
         <Text style={styles.newsTitle}>{item.title}</Text>
