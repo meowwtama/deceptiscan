@@ -19,9 +19,10 @@ import TeleDigestScreen from "./screens/TeleDigestScreen";
 import ScamWiseScreen from "./screens/ScamWiseScreen";
 import NewsArticleScreen from "./screens/NewsArticleScreen";
 
-
+//History Screens
 import OverallHistoryScreen from "./screens/OverallHistoryScreen";
 import ScamSnifferHistoryScreen from "./screens/ScamSnifferHistoryScreen";
+import LinkGuardHistoryScreen from "./screens/LinkGuardHistoryScreen";
 
 const RootStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +52,7 @@ function HistoryStackScreen() {
     <HistoryStack.Navigator screenOptions={{ headerShown: true }}>
       <HistoryStack.Screen name="OverallHistory" component={OverallHistoryScreen} options={{ title: "History" }} />
       <HistoryStack.Screen name="ScamSniffer History" component={ScamSnifferHistoryScreen} options={{ title: "Message History" }} />
+      <HistoryStack.Screen name="LinkGuard History" component={LinkGuardHistoryScreen} options={{ title: "Message History" }} />
     </HistoryStack.Navigator>
   );
 }
