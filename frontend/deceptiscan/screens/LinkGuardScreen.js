@@ -69,7 +69,11 @@ export default function LinkGuardScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+      <TouchableOpacity 
+        style={[styles.submitButton, loading && { opacity: 0.6 }]}
+        onPress={handleSubmit}
+        disabled={loading}
+      >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
@@ -78,10 +82,15 @@ export default function LinkGuardScreen() {
       </TouchableOpacity>
 
       {error && <Text style={styles.error}>{error}</Text>}
+
       {result && (
         <View style={styles.resultBox}>
-          <Text>Safe? {result.safe ? "Yes" : "No"}</Text>
-          <Text>Issues: {result.issues.join(", ")}</Text>
+          <Text style={styles.resultText}>
+            Safety Status: {result.safe ? "Safe" : "Potentially Unsafe"}
+          </Text>
+          <Text style={styles.resultText}>
+            Identified Issues: {result.issues?.length ? result.issues.join(", ") : "None"}
+          </Text>
         </View>
       )}
     </ScrollView>
@@ -142,5 +151,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    width: '100%',
+    maxWidth: 400,
+  },
+  resultText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  error: {
+    marginTop: 12,
+    color: 'red',
+    textAlign: 'center',
   },
 });

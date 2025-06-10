@@ -33,9 +33,6 @@ export default function NewsTruthScreen() {
       if (!user) throw new Error('You must be signed in');
       const idToken = await user.getIdToken();
 
-      console.log('Making request to:', `${FAKE_NEWS_DETECTOR_URL}/news/analyze`);
-      console.log('With URL:', articleUrl);
-
       const response = await fetch(`${FAKE_NEWS_DETECTOR_URL}/news/analyze`, {
         method: 'POST',
         headers: {
@@ -43,22 +40,20 @@ export default function NewsTruthScreen() {
           'Authorization': `Bearer ${idToken}`,
         },
         body: JSON.stringify({ 
-          url: articleUrl  // Changed from news_url to url to match backend
+          url: articleUrl
         }),
       });
 
       if (!response.ok) {
         const text = await response.text();
-        console.error('Server response:', text);
         throw new Error(`Error ${response.status}: ${text}`);
       }
 
       const data = await response.json();
-      console.log('Response data:', data);
       setResult(data);
     } catch (err) {
-      console.error('NewsTruth error details:', err);
-      setError(err.message || 'Network request failed');
+      console.error('NewsTruth error:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -158,10 +153,6 @@ const styles = StyleSheet.create({
     padding: 24,
     marginTop: 12,
   },
-  clipboardIcon: {
-    width: 32,
-    height: 32,
-  },
   submitButton: {
     backgroundColor: '#007BFF',
     paddingVertical: 14,
@@ -173,5 +164,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    width: '100%',
+    maxWidth: 400,
+  },
+  resultText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  error: {
+    marginTop: 12,
+    color: 'red',
+    textAlign: 'center',
   },
 });
