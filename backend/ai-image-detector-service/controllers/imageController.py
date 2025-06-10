@@ -42,22 +42,41 @@ def handle_image_prediction(image_filename: str, raw_id_token: str = None, decod
     2. Save to history (if token is provided).
     3. Return result.
     """
-    image_path = os.path.join("images", image_filename)
-    predicted_label, probabilities_tensor = predict_image(image_path, './models')
-    probabilities = probabilities_tensor.squeeze().tolist()
+    try:
+        image_path = os.path.join("images", image_filename)
+        if not os.path.exists(image_path):
+            raise HTTPException(
+                status_code=404,
+                detail=f"Image file not found: {image_filename}"
+            )
 
-    # Optional history save
-    if decoded_token and raw_id_token:
-        uid = decoded_token.get("uid")
-        if not uid:
-            raise HTTPException(status_code=401, detail="Invalid token: no uid")
+        if not os.path.exists("models"):
+            raise HTTPException(
+                status_code=500,
+                detail="Models directory not found. Please ensure models are properly installed."
+            )
 
-        save_to_history(
-            uid=uid,
-            id_token=raw_id_token,
-            prediction=predicted_label,
-            probabilities=probabilities,
-            image_filename=image_filename
+        predicted_label, probabilities_tensor = predict_image(image_path, './models')
+        probabilities = probabilities_tensor.squeeze().tolist()
+
+        # Optional history save
+        if decoded_token and raw_id_token:
+            uid = decoded_token.get("uid")
+            if not uid:
+                raise HTTPException(status_code=401, detail="Invalid token: no uid")
+
+            save_to_history(
+                uid=uid,
+                id_token=raw_id_token,
+                prediction=predicted_label,
+                probabilities=probabilities,
+                image_filename=image_filename
+            )
+
+        return predicted_label, probabilities_tensor
+    except Exception as e:
+        print(f"Error in handle_image_prediction: {str(e)}")  # Add logging
+        raise HTTPException(
+            status_code=500,
+            detail=f"Prediction failed: {str(e)}"
         )
-
-    return predicted_label, probabilities_tensor

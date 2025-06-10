@@ -24,6 +24,7 @@ import OverallHistoryScreen from "./screens/OverallHistoryScreen";
 import ScamSnifferHistoryScreen from "./screens/ScamSnifferHistoryScreen";
 import LinkGuardHistoryScreen from "./screens/LinkGuardHistoryScreen";
 import TeleDigestHistoryScreen from "./screens/TeleDigestHistoryScreen";
+import RealOrRenderHistoryScreen from "./screens/RealOrRenderHistoryScreen";
 
 const RootStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -54,7 +55,8 @@ function HistoryStackScreen() {
       <HistoryStack.Screen name="OverallHistory" component={OverallHistoryScreen} options={{ title: "History" }} />
       <HistoryStack.Screen name="ScamSniffer History" component={ScamSnifferHistoryScreen} options={{ title: "Message History" }} />
       <HistoryStack.Screen name="LinkGuard History" component={LinkGuardHistoryScreen} options={{ title: "Message History" }} />
-      <HistoryStack.Screen name="TeleDigest History" component={TeleDigestHistoryScreen} options={{title: "Telegram Group History"}} />
+      <HistoryStack.Screen name="TeleDigest History" component={TeleDigestHistoryScreen}options={{ title: "Telegram Group History" }}/>
+      <HistoryStack.Screen name="RealOrRender History" component={RealOrRenderHistoryScreen}options={{ title: "Image Analysis History" }}/>
     </HistoryStack.Navigator>
   );
 }

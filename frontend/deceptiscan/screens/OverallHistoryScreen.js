@@ -12,6 +12,7 @@ const historyList = [
   {
     id: "2",
     name: "RealOrRender History",
+    route: "RealOrRender History",
     description: "Past image analysis results",
     icon: require("../assets/RealOrRender.png"),
   },
@@ -24,13 +25,14 @@ const historyList = [
   {
     id: "4",
     name: "ScamSniffer History",
-    route: "ScamSniffer History", // Add this
+    route: "ScamSniffer History",
     description: "Past message analysis results",
     icon: require("../assets/ScamSniffer.png"),
   },
   {
     id: "5",
     name: "TeleDigest History",
+    route: "TeleDigest History",
     description: "Past telegram group analyses",
     icon: require("../assets/TeleDigest.png"),
   },

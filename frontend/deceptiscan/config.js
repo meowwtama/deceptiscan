@@ -1,8 +1,8 @@
-export const MESSAGE_ANALYSER_SERVICE_URL = "http://localhost:8002";
-export const LINK_ANALYSER_SERVICE_URL    = "http://localhost:8003";
-export const HISTORY_SERVICE_URL          = "http://localhost:8004";
-export const ARTICLES_SERVICE_URL         = "http://localhost:8005";
-export const AI_IMAGE_DETECTOR_SERVICE_URL = "http://localhost:8006";
+export const MESSAGE_ANALYSER_SERVICE_URL = "http://192.168.50.160:8002";
+export const LINK_ANALYSER_SERVICE_URL    = "http://192.168.50.160:8003";
+export const HISTORY_SERVICE_URL          = "http://192.168.50.160:8004";
+export const ARTICLES_SERVICE_URL         = "http://192.168.50.160:8005";
+export const AI_IMAGE_DETECTOR_SERVICE_URL = "http://192.168.50.160:8006";
 
 FIREBASE_API_KEY="AIzaSyCSNlzhQBG3JeHgSKdZeMIHv85RwqSRAkY"
 FIREBASE_AUTH_DOMAIN="deceptiscan.firebaseapp.com"
