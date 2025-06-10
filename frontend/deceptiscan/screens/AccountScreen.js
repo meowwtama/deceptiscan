@@ -14,10 +14,8 @@ export default function AccountScreen({ navigation }) {
   };
 
   const handleHistory = () => {
-  navigation.navigate("Services", { 
-    screen: "OverallHistory"
-  });
-};
+    navigation.navigate("HistoryStack"); // Navigate to root stack screen
+  };
 
   return (
     <View style={styles.container}>
@@ -42,13 +40,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60,
     backgroundColor: '#fff',
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#111',
   },
   avatar: {
     width: 120,

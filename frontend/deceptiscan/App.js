@@ -17,6 +17,9 @@ import NewsTruthScreen from "./screens/NewsTruthScreen";
 import ScamSnifferScreen from "./screens/ScamSnifferScreen";
 import TeleDigestScreen from "./screens/TeleDigestScreen";
 import ScamWiseScreen from "./screens/ScamWiseScreen";
+import NewsArticleScreen from "./screens/NewsArticleScreen";
+
+
 import OverallHistoryScreen from "./screens/OverallHistoryScreen";
 import ScamSnifferHistoryScreen from "./screens/ScamSnifferHistoryScreen";
 
@@ -25,6 +28,7 @@ const Tab = createBottomTabNavigator();
 const ServicesStack = createStackNavigator();
 const HistoryStack = createStackNavigator();
 
+// Services Tab Stack
 function ServicesStackScreen() {
   return (
     <ServicesStack.Navigator screenOptions={{ headerShown: true }}>
@@ -35,20 +39,23 @@ function ServicesStackScreen() {
       <ServicesStack.Screen name="ScamSniffer" component={ScamSnifferScreen} />
       <ServicesStack.Screen name="TeleDigest" component={TeleDigestScreen} />
       <ServicesStack.Screen name="ScamWise" component={ScamWiseScreen} />
-      <ServicesStack.Screen 
-        name="OverallHistory" 
-        component={OverallHistoryScreen}
-        options={{ title: "History" }}
-      />
-      <ServicesStack.Screen 
-        name="ScamSniffer History" 
-        component={ScamSnifferHistoryScreen}
-        options={{ title: "Message History" }}
-      />
+      <ServicesStack.Screen name="NewsArticle" component={NewsArticleScreen} options={{ title: "Article" }} />
     </ServicesStack.Navigator>
+
   );
 }
 
+// History Stack
+function HistoryStackScreen() {
+  return (
+    <HistoryStack.Navigator screenOptions={{ headerShown: true }}>
+      <HistoryStack.Screen name="OverallHistory" component={OverallHistoryScreen} options={{ title: "History" }} />
+      <HistoryStack.Screen name="ScamSniffer History" component={ScamSnifferHistoryScreen} options={{ title: "Message History" }} />
+    </HistoryStack.Navigator>
+  );
+}
+
+// Main bottom tab
 function MainTabs() {
   return (
     <Tab.Navigator
@@ -90,7 +97,8 @@ export default function App() {
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        <RootStack.Screen name="Main" component={MainTabs} />
+        <RootStack.Screen name="Account" component={MainTabs} />
+        <RootStack.Screen name="HistoryStack" component={HistoryStackScreen} />
       </RootStack.Navigator>
     </NavigationContainer>
   );

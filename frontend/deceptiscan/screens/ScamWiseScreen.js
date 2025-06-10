@@ -47,7 +47,7 @@ export default function ScamWiseScreen({ navigation }) {
           <Text style={styles.cardDescription}>{item.description}</Text>
           <TouchableOpacity
             style={styles.viewButton}
-            onPress={() => navigation.navigate('ArticlePlaceholder', { item })}
+            onPress={() => navigation.navigate('NewsArticle', { articleId: item.id })}
           >
             <Text style={styles.viewButtonText}>View</Text>
           </TouchableOpacity>
