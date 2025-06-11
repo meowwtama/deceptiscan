@@ -6,7 +6,7 @@ def save_to_history(
     id_token: str,
     news_url: str,
     classification: str,
-    fake_probability: int,
+    fake_probability: float,
     explanation: str,
     ):
 

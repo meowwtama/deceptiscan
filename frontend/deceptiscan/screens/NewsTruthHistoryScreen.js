@@ -67,8 +67,12 @@ const renderHistoryItem = ({ item }) => {
   return (
     <View style={styles.historyCard}>
       <Text style={styles.urlText}>URL: {item.news_url}</Text>
-      <Text style={styles.scoreText}>
-        Confidence Score: {item.confidence_score}/100
+      <Text style={styles.urlText}>
+        <Text style={styles.urlText}> Classification: </Text>
+        <Text style={item.classification === 'Real' ? styles.safeText : styles.scamText}>{item.classification}</Text>
+      </Text>
+      <Text style={styles.urlText}>
+        Fake Probability: {(item.fake_probability * 100).toFixed(1)}%
       </Text>
       <Text style={styles.analysisText}>
         Analysis: {item.explanation}
@@ -161,5 +165,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#666",
     marginTop: 32,
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });

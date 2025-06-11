@@ -128,13 +128,14 @@ export default function TeleDigestScreen() {
                       ? styles.scamBox
                       : styles.safeBox,]}>
           {scam_classification && (
-            <>
-            <Text style={styles.resultLabel}>Scam Classification: {scam_classification}</Text>
-            </>
+            <Text style={styles.resultLabel}>
+            <Text style={styles.resultLabel}>Scam Classification: </Text>
+            <Text style={scam_classification === 'Safe' ? styles.safeText : styles.scamText}>{scam_classification}</Text>
+            </Text>
           )}
           {scam_probability !== null && (
             <>
-            <Text style={styles.resultLabel}>Scam Probability: {scam_probability}</Text>
+            <Text style={styles.resultLabel}>Scam Probability: {(scam_probability * 100).toFixed(1)}%</Text>
             </>
           )}
           {summary && (
@@ -239,5 +240,11 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 8,
     fontWeight: '600',
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });

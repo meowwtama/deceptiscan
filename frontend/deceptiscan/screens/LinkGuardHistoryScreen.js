@@ -67,12 +67,25 @@ export default function LinkGuardHistoryScreen() {
     return (
       <View style={styles.historyCard}>
         <Text style={styles.urlText}>URL: {item.url}</Text>
-        <Text style={styles.safetyText}>
-          Safe: {item.safe ? "Yes" : "No"}
+        <Text style={styles.urlText}>
+            <Text style={styles.labelText}>Safety Status: </Text>
+            <Text style={item.safe ? styles.safeText : styles.scamText}>
+                      {item.safe ? "Safe" : "Potentially Unsafe"}
+            </Text>
         </Text>
-        <Text style={styles.issuesText}>
-          Issues: {item.issues?.join(", ")}
+        <Text style={styles.urlText}>
+          Identified Issues: {item.issues?.length ? item.issues.join(", ") : "None"}
         </Text>
+        <Text style={styles.urlText}>Redirect Details:</Text>
+        {Array.isArray(item.url_chain) && item.url_chain.length > 0 ? (
+            item.url_chain.map((line, idx) => (
+              <Text key={idx} style={styles.issuesText}>
+                • {line}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.issuesText}>No redirects detected</Text>
+          )}
         <Text style={styles.dateText}>{dateString}</Text>
       </View>
     );
@@ -176,5 +189,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#666",
     marginTop: 32,
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });

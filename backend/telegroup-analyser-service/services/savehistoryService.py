@@ -7,7 +7,7 @@ def save_to_history(
     group_name: str,
     summary: str,
     scam_classification: str,
-    scam_probability: int
+    scam_probability: float
     ):
 
     """

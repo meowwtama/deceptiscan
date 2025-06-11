@@ -67,8 +67,12 @@ export default function ScamSnifferHistoryScreen() {
     return (
       <View style={styles.historyCard}>
         <Text style={styles.messageText}>Message: {item.originalMessage}</Text>
-        <Text style={styles.classificationText}>
-          Classification: {item.classification}
+        <Text style={styles.messageText}>
+        <Text style={styles.messageText}>Classification: </Text>
+        <Text style={item.classification === 'Safe' ? styles.safeText : styles.scamText}>{item.classification}</Text> 
+        </Text>
+        <Text style={styles.messageText}>
+          Scam Probability: {(item.scamProbability * 100).toFixed(1)}%
         </Text>
         <Text style={styles.summaryText}>Summary: {item.summary}</Text>
         <Text style={styles.dateText}>{dateString}</Text>
@@ -159,5 +163,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#666",
     marginTop: 32,
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });
