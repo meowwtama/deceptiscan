@@ -21,9 +21,9 @@ if not HISTORY_SERVICE_URL.endswith("/"):
 
 def analyze_with_groq(message: str) -> dict:
     """
-    Send a prompt to Groq LLM to classify 'message' as 'scam' or 'not scam'
+    Send a prompt to Groq LLM to classify 'message' as 'Scam' or 'Safe'
     and get a short summary explaining why.
-    Returns a dict: { "classification": "scam"/"not scam", "summary": "<text>" }
+    Returns a dict: { "classification": "Scam"/"Safe", "summary": "<text>" }
     """
 
     try:
@@ -34,11 +34,11 @@ def analyze_with_groq(message: str) -> dict:
                     "role": "system",
                     "content": 
                     """
-                    You are a helpful assistant that classifies a user‐provided SMS or email message as either "scam" or "not scam", then provides a short explanation not more than 200 words long of why you classified it that way.
+                    You are a helpful assistant that classifies a user‐provided SMS or email message as either "Scam" or "Safe", then provides a short explanation not more than 200 words long of why you classified it that way.
 
                     Output in the JSON file template as provided in the assistant prompt.
                     {{
-                    "classification": "<Scam or Not Scam>",
+                    "classification": "<Scam or Safe>",
                     "summary": "<short explanation not reaching 200 words>",
                     "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
@@ -52,11 +52,11 @@ def analyze_with_groq(message: str) -> dict:
                     "role": "assistant",
                     "content": 
                     """
-                    Please classify the message above as either "scam" or "not scam", and provide a short explanation of your reasoning in the summary field.
+                    Please classify the message above as either "Scam" or "Safe", and provide a short explanation of your reasoning in the summary field.
                     
                     Output in the JSON file template as provided in the system prompt.
                     {{
-                    "classification": "<Scam or Not Scam>",
+                    "classification": "<Scam or Safe",
                     "summary": "<short explanation not reaching 200 words>",
                     "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
@@ -78,7 +78,7 @@ def analyze_with_groq(message: str) -> dict:
         summary = parsed.get("summary")
         scam_probability = parsed.get("scam_probability", 0.0)
 
-        if classification not in ("Scam", "Not Scam"):
+        if classification not in ("Scam", "Safe"):
             raise ValueError(f"Unexpected classification value: {classification}")
 
         return {"classification": classification, "summary": summary, "scam_probability": scam_probability}
