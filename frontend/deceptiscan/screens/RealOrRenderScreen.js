@@ -168,12 +168,23 @@ export default function RealOrRenderScreen() {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {prediction && (
-        <View style={styles.resultBox}>
-          <Text style={styles.resultText}>
-            Label: {prediction.predicted_label}
+        <View
+          style={[
+            styles.resultBox,
+            prediction.predicted_label === 'real'
+              ? styles.safeBox
+              : styles.scamBox,
+          ]}
+        >
+          <Text style={styles.probabilityText}>
+            <Text style={styles.labelText}>Label: </Text>
+            <Text style={prediction.predicted_label === 'real' ? styles.safeText : styles.scamText}>
+              {prediction.predicted_label === 'real' ? 'Real' : 'Not Real'}
+            </Text>
           </Text>
-          <Text style={styles.resultText}>
-            AI Probability: {prediction.probabilities[0][1].toFixed(5)}
+          
+          <Text style={styles.probabilityText}>
+            AI Probability: {(prediction.probabilities[0][1] * 100).toFixed(1)}%
           </Text>
         </View>
       )}
@@ -233,14 +244,6 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
   },
-  resultBox: {
-    marginTop: 20,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    width: '100%',
-    maxWidth: 400,
-  },
   resultText: {
     fontSize: 14,
     color: '#666',
@@ -252,4 +255,40 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 12,
   },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 3,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
+  },
+  probabilityText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#333',
+  },
+  resultText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
+  },
+  labelText: {
+    color: "#000"
+  }
 });
