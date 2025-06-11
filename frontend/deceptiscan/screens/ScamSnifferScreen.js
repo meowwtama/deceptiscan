@@ -14,12 +14,16 @@ import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { MESSAGE_ANALYSER_SERVICE_URL } from '../config';
 import AnimatedCircularProgress from './AnimatedCircularProgress';
+import { useNavigation, useRoute} from '@react-navigation/native'
 
 export default function ScamSnifferScreen() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [showLinkPrompt, setShowLinkPrompt] = useState(false);
+  const [detectedLinks, setDetectedLinks] = useState([]);
+  const navigation = useNavigation();
 
   const handleClipboardPaste = async () => {
     try {
@@ -65,12 +69,28 @@ export default function ScamSnifferScreen() {
 
       const json = await resp.json();
       setResult(json);
+      const urlRegex = /((https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}[^\s]*)/g;
+      const links = message.match(urlRegex);
+      if (links && links.length > 0) {
+        const cleanedLinks = links.map(link => {
+          if (!link.startsWith('http://') && !link.startsWith('https://')) {
+            return 'https://' + link;
+          }
+          return link;
+        });
+        setDetectedLinks(cleanedLinks);
+        setShowLinkPrompt(true);  
+      }
     } catch (err) {
       console.error('ScamSniffer error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+  const handleAnalyzeWithLinkGuard = () => {
+    setShowLinkPrompt(false);
+    navigation.navigate('LinkGuard', { link: detectedLinks[0] });
   };
 
   return (
@@ -149,6 +169,20 @@ export default function ScamSnifferScreen() {
             </Text>
           </View>
         )}
+        {showLinkPrompt && (
+        <View style={styles.linkPromptBox}>
+          <Text style={styles.promptText}>We detected the following link(s) in the message:</Text>
+          {detectedLinks.map((link, index) => (
+            <Text key={index} style={styles.linkText}>{link}</Text>
+          ))}
+          <TouchableOpacity
+            style={styles.linkButton}
+            onPress={handleAnalyzeWithLinkGuard}
+          >
+            <Text style={styles.linkButtonText}>Analyze with LinkGuard</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       </ScrollView>
     </ImageBackground>
   );
@@ -266,5 +300,36 @@ const styles = StyleSheet.create({
   },
   labelText: {
     color: "#000"
-  }
+  },
+  linkPromptBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#007BFF',
+    alignSelf: 'center',
+    width: '100%',
+    maxWidth: 400,
+  },
+  promptText: {
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  linkText: {
+    color: '#007BFF',
+    marginBottom: 4,
+  },
+  linkButton: {
+    marginTop: 12,
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  linkButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
 });

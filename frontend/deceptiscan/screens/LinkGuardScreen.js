@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { auth } from "../firebaseConfig";
 import { LINK_ANALYSER_SERVICE_URL } from "../config";
 import { useLanguage } from '../contexts/LanguageContext';
+import { useRoute } from '@react-navigation/native';
 
 export default function LinkGuardScreen() {
   const { language } = useLanguage();
@@ -12,6 +13,7 @@ export default function LinkGuardScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const route = useRoute();
 
   const labelUrl = language === 'zh' ? '输入要检查的链接：' : 'Enter a URL to check:';
   const pasteLabel = language === 'zh' ? '或从剪贴板粘贴：' : 'Or paste from clipboard:';
@@ -20,6 +22,17 @@ export default function LinkGuardScreen() {
   const issuesText = language === 'zh' ? '发现问题：' : 'Identified Issues: ';
   const redirectsText = language === 'zh' ? '重定向详情：' : 'Redirect Details:';
   const noRedirectText = language === 'zh' ? '未检测到重定向' : 'No redirects detected';
+
+  useEffect(() => {
+    if (route.params?.link) {
+      const linkFromScamSniffer = route.params.link;
+      setUrl(linkFromScamSniffer);
+      // Auto-submit after setting the URL
+      setTimeout(() => {
+        handleSubmitWithUrl(linkFromScamSniffer);
+      }, 100);
+    }
+  }, [route.params]);
 
   const handleClipboardPaste = async () => {
     try {
@@ -31,8 +44,8 @@ export default function LinkGuardScreen() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!url) return;
+  const handleSubmitWithUrl = async (urlToSubmit) => {
+    if (!urlToSubmit) return;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -48,7 +61,7 @@ export default function LinkGuardScreen() {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${idToken}`,
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: urlToSubmit }),
       });
 
       if (!response.ok) {
@@ -64,6 +77,9 @@ export default function LinkGuardScreen() {
     } finally {
       setLoading(false);
     }
+  };
+  const handleSubmit = async () => {
+    await handleSubmitWithUrl(url);
   };
 
   return (
