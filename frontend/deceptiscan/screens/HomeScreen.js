@@ -1,283 +1,229 @@
+// HomeScreen.js
 import React, { useRef, useState } from "react";
 import {
+  SafeAreaView,
+  FlatList,
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Dimensions,
-  Image,
   TouchableOpacity,
-  InteractionManager,
+  ImageBackground,
+  Image,
+  ScrollView,
   Linking,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import AppLoading from "expo-app-loading";
+import { useFonts, FredokaOne_400Regular } from "@expo-google-fonts/fredoka-one";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+const CARD_RADIUS = 16;
+const CARD_WIDTH = width * 0.9;
+const CARD_SPACING = 16;
 
-const carouselData = [
-  {
-    id: "1",
-    title: "Make sure to download anti-virus programs to safeguard your devices",
-    icon: require("../assets/WarningSign.png"),
-  },
-  {
-    id: "2",
-    title: "Beware of phishing emails—never click unknown links!",
-    icon: require("../assets/WarningSign.png"),
-  },
-  {
-    id: "3",
-    title: "Always verify bank SMS sender before transferring funds.",
-    icon: require("../assets/WarningSign.png"),
-  },
+// 1. Carousel tips
+const tips = [
+  { id: "1", header: "🚨 Watch Out for Phishy SMS!", bg: "#FFDDE1", image: require("../assets/phishing.png") },
+  { id: "2", header: "🔒 Fortress Your Wi-Fi!",        bg: "#DDEEFF",    image: require("../assets/sw1.png") },
+  { id: "3", header: "🔧 Get 20% Off Repairs!",        bg: "#E7F9E7",    image: require("../assets/sw3.png") },
 ];
 
-const trendingNews = [
-  {
-    id: "1",
-    title: "Scam tracker: What are the latest trends in Singapore and how much money has been lost?",
-    sourceLogo: require("../assets/StraitsTimes.png"),
-    url: "https://www.straitstimes.com/singapore/scam-tracker-what-are-the-latest-trends-in-spore-and-how-much-money-has-been-lost"
-  },
-  {
-    id: "2",
-    title:
-      'Fake Bank SMSes Target Thousands in new “OTP” phishing scam. How to protect yourself.',
-    sourceLogo: require("../assets/ScamSign.png"),
-  },
-  {
-    id: "3",
-    title:
-      "Phishing emails masquerading as delivery notifications on the rise.",
-    sourceLogo: require("../assets/StraitsTimes.png"),
-  },
+// 2. Top 3 services
+const topServices = [
+  { id: "LinkGuard",    label: "LinkGuard",    icon: "link-outline" },
+  { id: "RealOrRender", label: "RealOrRender", icon: "image-outline" },
+  { id: "ScamSniffer",  label: "ScamSniffer",  icon: "chatbox-ellipsis-outline" },
 ];
 
-const serviceIcons = [
-  { key: "LinkGuard", icon: require("../assets/LinkGuard.png") },
-  { key: "RealOrRender", icon: require("../assets/RealOrRender.png") },
-  { key: "NewsTruth", icon: require("../assets/NewsTruth.png") },
-  { key: "ScamSniffer", icon: require("../assets/ScamSniffer.png") },
+// 3. Trending news
+const trending = [
+  { id: "1", title: "OTP Phishing Wave Swells",       subtitle: "ScamTracker", image: require("../assets/scamshield.png"), url: "https://example.com/1" },
+  { id: "2", title: "Bank SMS Scam Targets Seniors",   subtitle: "Daily News",  image: require("../assets/sw1.png"),     url: "https://example.com/2" },
+  { id: "3", title: "5 Tips to Harden Your Wi-Fi",     subtitle: "Tech Today",  image: require("../assets/sw3.png"),     url: "https://example.com/3" },
 ];
 
 export default function HomeScreen({ navigation }) {
-  const scrollRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  let [fontsLoaded] = useFonts({ FredokaOne_400Regular });
+  const [activeTip, setActiveTip] = useState(0);
+  const tipRef = useRef(null);
 
-  const onCarouselScrollEnd = (e) => {
-    const offsetX = e.nativeEvent.contentOffset.x;
-    const pageWidth = SCREEN_WIDTH - 60;
-    const newIndex = Math.round(offsetX / pageWidth);
-    setActiveIndex(newIndex);
+  if (!fontsLoaded) return <AppLoading />;
+
+  const onTipScroll = (e) => {
+    const idx = Math.round(e.nativeEvent.contentOffset.x / (CARD_WIDTH + CARD_SPACING));
+    setActiveTip(idx);
   };
 
-  const renderCarouselItem = (item) => (
-    <View style={[styles.carouselItem, { width: SCREEN_WIDTH - 60 }]} key={item.id}>
-      <Text style={styles.carouselText}>{item.title}</Text>
-      <Image source={item.icon} style={styles.carouselIcon} resizeMode="contain" />
-    </View>
-  );
-
-  const renderNewsItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.newsCard}
-      key={item.id}
-      onPress={() => {
-        if (item.url) {
-          Linking.openURL(item.url);
-        }
-      }}
-    >
-      <View style={styles.newsCardHeader}>
-        <Image source={item.sourceLogo} style={styles.newsLogo} resizeMode="contain" />
-        <Text style={styles.newsTitle}>{item.title}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.boxContainer}>
-        {/* 1. Carousel */}
-        <View style={styles.carouselContainer}>
-          <ScrollView
-            ref={scrollRef}
+    <ImageBackground
+      source={require("../assets/bg.png")}
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
+    >
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+
+          {/* Spacer */}
+          <View style={{ height: 16 }} />
+
+          {/* Tip Carousel */}
+          <FlatList
+            data={tips}
+            keyExtractor={(t) => t.id}
             horizontal
-            pagingEnabled
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 15 }}
-            onMomentumScrollEnd={onCarouselScrollEnd}
-          >
-            {carouselData.map(renderCarouselItem)}
-          </ScrollView>
-          <View style={styles.paginationDots}>
-            {carouselData.map((_, idx) => (
+            contentContainerStyle={{ paddingHorizontal: (width - CARD_WIDTH) / 2 }}
+            snapToInterval={CARD_WIDTH + CARD_SPACING}
+            decelerationRate="fast"
+            snapToAlignment="start"
+            ItemSeparatorComponent={() => <View style={{ width: CARD_SPACING }} />}
+            onMomentumScrollEnd={onTipScroll}
+            renderItem={({ item }) => (
+              <View style={[styles.tipCard, { backgroundColor: item.bg, width: CARD_WIDTH, height: 200 }]}>
+                <Image source={item.image} style={styles.tipImageLeft} />
+                <View style={styles.tipTextContainer}>
+                  <Text style={styles.tipHeader}>{item.header}</Text>
+                </View>
+              </View>
+            )}
+          />
+          <View style={styles.dots}>
+            {tips.map((_, i) => (
               <View
-                key={idx}
-                style={[styles.dot, idx === activeIndex ? styles.dotActive : null]}
+                key={i}
+                style={[styles.dot, i === activeTip ? styles.dotActive : styles.dotInactive]}
               />
             ))}
           </View>
-        </View>
 
-        {/* 2. View All Services Link */}
-        <TouchableOpacity
-          style={styles.viewAllContainer}
-          onPress={() => navigation.navigate("Services")}
-        >
-          <Text style={styles.viewAllText}>View All Services ›</Text>
-        </TouchableOpacity>
-
-        {/* 3. Service Icons */}
-        <View style={styles.iconRowContainer}>
-          {serviceIcons.map((svc) => (
-            <TouchableOpacity
-              key={svc.key}
-              style={styles.iconCircle}
-              onPress={() => {
-                navigation.navigate("Services");
-                InteractionManager.runAfterInteractions(() => {
-                  navigation.navigate("Services", { screen: svc.key });
-                });
-              }}
-            >
-              <Image source={svc.icon} style={styles.iconImage} resizeMode="contain" />
+          {/* Most Popular Services */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Most Popular Services</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Services")}>
+              <Text style={styles.viewAllText}>View All</Text>
             </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingLeft: 16, marginBottom: 24 }}
+          >
+            {topServices.map((s) => (
+              <TouchableOpacity
+                key={s.id}
+                style={styles.servicePill}
+                onPress={() => navigation.navigate("Services", { screen: s.id })}
+              >
+                <Ionicons name={s.icon} size={22} color="#2575FC" />
+                <Text style={styles.serviceText}>{s.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-      {/* 4. Trending News */}
-      <View style={styles.trendingContainer}>
-        <Text style={styles.trendingHeader}>Trending News Articles</Text>
-        {trendingNews.map((item) => renderNewsItem({ item }))}
-      </View>
-    </ScrollView>
+          {/* Trending News */}
+          <Text style={styles.trendingHeader}>Trending News Articles</Text>
+          <View style={{ paddingHorizontal: 16, paddingBottom: 24 }}>
+            {trending.map((a) => (
+              <TouchableOpacity
+                key={a.id}
+                style={styles.newsCard}
+                onPress={() => a.url && Linking.openURL(a.url)}
+              >
+                <Image source={a.image} style={styles.newsImage} />
+                <View style={styles.newsText}>
+                  <Text style={styles.newsTitle}>{a.title}</Text>
+                  <Text style={styles.newsSubtitle}>{a.subtitle}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#e0e0e0",
-  },
-  boxContainer: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    marginHorizontal: 16,
-    marginTop: 16,
-    paddingBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  carouselContainer: {
-    marginTop: 16,
-  },
-  carouselItem: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 12,
-    padding: 16,
-    marginRight: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  carouselText: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-    marginRight: 12,
-  },
-  carouselIcon: {
-    width: 48,
-    height: 48,
-  },
-  paginationDots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#bbb",
-    marginHorizontal: 4,
-  },
-  dotActive: {
-    backgroundColor: "#333",
-  },
-  viewAllContainer: {
-    alignSelf: "flex-end",
-    marginRight: 24,
-    marginTop: 12,
-  },
-  viewAllText: {
-    fontSize: 14,
-    color: "#FF8C00",
-    fontWeight: "600",
-  },
-  iconRowContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 12,
-    marginHorizontal: 16,
-  },
-  iconCircle: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f2f2f2",
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  iconImage: {
-    width: 40,
-    height: 40,
-  },
-  trendingContainer: {
-    marginTop: 24,
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  trendingHeader: {
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 12,
-    color: "#333",
-  },
-  newsCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  newsCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  newsLogo: {
-    width: 32,
-    height: 32,
-    marginRight: 12,
-  },
-  newsTitle: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-  },
+  background:     { flex: 1, backgroundColor: "#F0F4F8" },
+  container:      { flex: 1 },
+
+  tipCard:        {
+                   flexDirection: "row",
+                   borderRadius: CARD_RADIUS,
+                   overflow: "hidden",
+                   shadowColor: "#000",
+                   shadowOpacity:   0.03,
+                   shadowOffset:   { width: 0, height: 2 },
+                   shadowRadius:   6,
+                   elevation:      2,
+                  },
+  tipImageLeft:   {
+                   width: CARD_WIDTH * 0.4,
+                   height: "100%",
+                   resizeMode: "cover",
+                   borderTopLeftRadius: CARD_RADIUS,
+                   borderBottomLeftRadius: CARD_RADIUS,
+                   borderWidth: 1,
+                   borderColor: "#000",
+                  },
+  tipTextContainer: {
+                   flex: 1,
+                   padding: 16,
+                   justifyContent: "center",
+                  },
+  tipHeader:      {
+                   fontSize: 22,
+                   fontFamily: "FredokaOne_400Regular",
+                   color: "#333",
+                  },
+
+  dots:           { flexDirection: "row", justifyContent: "center", marginVertical: 16 },
+  dot:            { width: 12, height: 4, borderRadius: 2, marginHorizontal: 4 },
+  dotActive:      { backgroundColor: "#2575FC" },
+  dotInactive:    { backgroundColor: "#CCC" },
+
+  sectionHeader:  {
+                   flexDirection: "row",
+                   justifyContent: "space-between",
+                   alignItems: "center",
+                   marginHorizontal: 16,
+                   marginBottom: 8,
+                  },
+  sectionTitle:   { fontSize: 20, fontWeight: "800", color: "#333" },
+  viewAllText:    { fontSize: 14, color: "#2575FC", textDecorationLine: "underline" },
+
+  servicePill:    {
+                   flexDirection: "row",
+                   alignItems: "center",
+                   backgroundColor: "#fff",
+                   paddingVertical: 8,
+                   paddingHorizontal: 16,
+                   borderRadius: 20,
+                   marginRight: 12,
+                   shadowColor: "#000",
+                   shadowOpacity:   0.03,
+                   shadowOffset:   { width: 0, height: 2 },
+                   shadowRadius:   6,
+                   elevation:      2,
+                  },
+  serviceText:    { marginLeft: 8, fontSize: 14, fontWeight: "600", color: "#2575FC" },
+
+  trendingHeader: { fontSize: 20, fontWeight: "800", color: "#333", marginLeft: 16, marginBottom: 12 },
+  newsCard:       {
+                   backgroundColor: "#fff",
+                   borderRadius: CARD_RADIUS,
+                   overflow: "hidden",
+                   marginBottom: 16,
+                   shadowColor: "#000",
+                   shadowOpacity:   0.03,
+                   shadowOffset:   { width: 0, height: 2 },
+                   shadowRadius:   6,
+                   elevation:      2,
+                  },
+  newsImage:      { width: "100%", height: 180, resizeMode: "cover", borderWidth: 1, borderColor: "#000" },
+  newsText:       { padding: 12 },
+  newsTitle:      { fontSize: 16, fontWeight: "600", color: "#333", marginBottom: 4 },
+  newsSubtitle:   { fontSize: 12, color: "#666" },
 });
