@@ -25,7 +25,6 @@ export default function NewsTruthHistoryScreen() {
     const idToken = await user.getIdToken();
 
     const response = await fetch(
-      // Change from newsAnalyser to FakeNewsDetector to match backend
       `${HISTORY_SERVICE_URL}/history/FakeNewsDetector`,
       {
         headers: {

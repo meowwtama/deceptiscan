@@ -39,7 +39,8 @@ def analyze_with_groq(message: str) -> dict:
                     Output in the JSON file template as provided in the assistant prompt.
                     {{
                     "classification": "<scam or not scam>",
-                    "summary": "<short explanation not reaching 200 words>"
+                    "summary": "<short explanation not reaching 200 words>",
+                    "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
                     """
                 },
@@ -56,7 +57,8 @@ def analyze_with_groq(message: str) -> dict:
                     Output in the JSON file template as provided in the system prompt.
                     {{
                     "classification": "<scam or not scam>",
-                    "summary": "<short explanation not reaching 200 words>"
+                    "summary": "<short explanation not reaching 200 words>",
+                    "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
                     """
                 }
@@ -74,11 +76,12 @@ def analyze_with_groq(message: str) -> dict:
         parsed = json.loads(generated)
         classification = parsed.get("classification")
         summary = parsed.get("summary")
+        scam_probability = parsed.get("scam_probability", 0.0)
 
         if classification not in ("scam", "not scam"):
             raise ValueError(f"Unexpected classification value: {classification}")
 
-        return {"classification": classification, "summary": summary}
+        return {"classification": classification, "summary": summary, "scam_probability": scam_probability}
 
     except Exception as e:
         raise HTTPException(
@@ -91,7 +94,8 @@ def save_to_history(
     id_token: str,
     classification: str,
     summary: str,
-    original_message: str
+    original_message: str,
+    scam_probability: float,
     ) -> None:
     """
     Call the History Service to save this analysis under 'messageAnalyser' subcollection:
@@ -104,7 +108,8 @@ def save_to_history(
         "data": {
             "classification": classification,
             "summary": summary,
-            "originalMessage": original_message
+            "originalMessage": original_message,
+            "scamProbability": scam_probability,
         }
     }
 
@@ -138,6 +143,7 @@ async def handle_analyze(request_data: dict, decoded_token: dict):
     analysis = analyze_with_groq(message)
     classification = analysis["classification"]
     summary = analysis["summary"]
+    scam_probability = analysis.get("scam_probability", 0.0)
 
     # 2. Save to history
     uid = decoded_token.get("uid")
@@ -169,8 +175,10 @@ async def handle_analyze(request_data: dict, decoded_token: dict):
         id_token=raw_id_token,
         classification=classification,
         summary=summary,
-        original_message=message
+        original_message=message,
+        scam_probability=scam_probability
     )
 
     # 3. Return to caller
-    return {"classification": classification, "summary": summary}
+    return {"classification": classification, "summary": summary, 
+            "scam_probability": scam_probability}

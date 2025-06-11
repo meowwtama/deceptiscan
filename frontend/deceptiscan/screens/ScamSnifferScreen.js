@@ -122,6 +122,9 @@ export default function ScamSnifferScreen() {
             Classification: {result.classification}
           </Text>
           <Text style={styles.resultText}>
+            Scam Probability: {result.scam_probability}
+          </Text>
+          <Text style={styles.resultText}>
             Summary: {result.summary}
           </Text>
         </View>
