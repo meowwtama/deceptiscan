@@ -25,7 +25,7 @@ os.makedirs("images", exist_ok=True)
 app.mount(
     "/images/files",
     StaticFiles(directory="images"),
-    name="images_files"
+    name="images"
 )
 
 @app.get("/health")

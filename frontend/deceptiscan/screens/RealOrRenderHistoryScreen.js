@@ -6,9 +6,10 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
+  ScrollView,
 } from "react-native";
 import { auth } from "../firebaseConfig";
-import { HISTORY_SERVICE_URL } from "../config";
+import { HISTORY_SERVICE_URL, AI_IMAGE_DETECTOR_SERVICE_URL } from "../config";
 
 export default function RealOrRenderHistoryScreen() {
   const [history, setHistory] = useState([]);
@@ -65,25 +66,42 @@ export default function RealOrRenderHistoryScreen() {
       }
     }
 
-    return (
-        <View style={styles.historyCard}>
-            <Text style={styles.predictionText}>
-                Prediction: {item.prediction || "Unknown"}
-            </Text>
-            <Text style={styles.confidenceText}>
-                Confidence: {item.probabilities?.join(', ')}
-            </Text>
-            {item.imageUrl && (
-                <Image
-                    source={{ uri: item.imageUrl }}
-                    style={styles.imagePreview}
-                    resizeMode="cover"
-                />
-            )}
-            <Text style={styles.dateText}>{dateString}</Text>
-        </View>
-    );
-}
+    // Add debug logging
+    console.log('History item:', item);
+    console.log('Image URL:', item.image_url);
+
+    const imageUrl = item.image_url || 
+    (item.imageFilename ? `${AI_IMAGE_DETECTOR_SERVICE_URL}/images/files/${item.imageFilename}` : null);
+
+    console.log('Using image URL:', imageUrl); // Debug log
+
+    // Get the AI probability with safety checks
+  const aiProbability = Array.isArray(item.probabilities) && item.probabilities.length > 1 
+    ? item.probabilities[1] 
+    : (item.probabilities && item.probabilities.length === 1 
+      ? item.probabilities[0] 
+      : 0);
+
+  return (
+    <View style={styles.historyCard}>
+      <Text style={styles.predictionText}>
+        Label: {item.predicted_label || "Unknown"}
+      </Text>
+      <Text style={styles.confidenceText}>
+        AI Probability: {aiProbability.toFixed(5)}
+      </Text>
+      {imageUrl && (
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.imagePreview}
+          resizeMode="cover"
+          onError={(error) => console.error('Image loading error:', error.nativeEvent.error)}
+        />
+      )}
+      <Text style={styles.dateText}>{dateString}</Text>
+    </View>
+  );
+};
 
 if (loading) {
     return (
@@ -154,11 +172,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     borderRadius: 8,
-    marginBottom: 8,
+    marginVertical: 8,
+    backgroundColor: '#f0f0f0',
   },
   dateText: {
     fontSize: 12,
     color: "#999",
+    marginTop: 4,
   },
   errorText: {
     color: "red",

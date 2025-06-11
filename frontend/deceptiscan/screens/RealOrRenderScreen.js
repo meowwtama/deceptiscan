@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView } from "react-native";
+
+
 import {
   View,
   Text,
@@ -8,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
@@ -171,7 +173,7 @@ export default function RealOrRenderScreen() {
             Label: {prediction.predicted_label}
           </Text>
           <Text style={styles.resultText}>
-            Confidence: {prediction.probabilities.join(', ')}
+            AI Probability: {prediction.probabilities[0][1].toFixed(5)}
           </Text>
         </View>
       )}
@@ -236,9 +238,18 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
+    width: '100%',
+    maxWidth: 400,
   },
   resultText: {
     fontSize: 14,
-    marginBottom: 4,
+    color: '#666',
+    marginBottom: 8,
+  },
+  resultImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    marginTop: 12,
   },
 });

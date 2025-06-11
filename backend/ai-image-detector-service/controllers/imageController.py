@@ -8,17 +8,24 @@ if not HISTORY_SERVICE_URL.endswith("/"):
     HISTORY_SERVICE_URL = HISTORY_SERVICE_URL.rstrip("/")
 
 def save_to_history(uid: str, id_token: str, prediction: str, probabilities: list, image_filename: str):
-    """
-    Save the image prediction result to the History Service.
-    POST /history/imageDetector
-    Body: { "data": { ... } }
-    """
+    """Save the image prediction result to the History Service."""
     url = f"{HISTORY_SERVICE_URL}/history/imageDetector"
+    
+    # Use the environment variable for service URL
+    service_url = os.getenv('AI_IMAGE_DETECTOR_SERVICE_URL')
+    if not service_url:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="AI_IMAGE_DETECTOR_SERVICE_URL not configured"
+        )
+    
+    image_url = f"{service_url}/images/files/{image_filename}"
 
     payload = {
         "data": {
-            "prediction": prediction,
-            "probabilities": probabilities,
+            "predicted_label": prediction,
+            "probabilities": [probabilities[1] if prediction == "fake" else probabilities[0]],
+            "image_url": image_url,
             "imageFilename": image_filename
         }
     }
