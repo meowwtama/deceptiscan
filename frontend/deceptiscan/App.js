@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator }    from '@react-navigation/stack';
 import { auth }                     from './firebaseConfig';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 // Auth screens
 import LoginScreen  from './screens/LoginScreen';
@@ -81,20 +82,22 @@ export default function App() {
   if (initializing) return null;
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!user ? (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen name="HistoryStack" component={HistoryStackScreen} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <LanguageProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {!user ? (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="Main" component={MainTabs} />
+              <Stack.Screen name="HistoryStack" component={HistoryStackScreen} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </LanguageProvider>
   );
 }
