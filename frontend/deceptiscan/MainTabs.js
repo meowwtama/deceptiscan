@@ -41,7 +41,10 @@ export default function MainTabs() {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarShowLabel: false,
+        // show labels under icons
+        tabBarShowLabel: true,
+        tabBarLabel: route.name,
+
         headerShown: false,  // default, overridden per-screen below
         tabBarIcon: ({ focused }) => {
           let icon =
@@ -51,6 +54,11 @@ export default function MainTabs() {
           return <Ionicons name={icon} size={28} color={focused ? '#FF8C00' : '#888'} />;
         },
         tabBarStyle: { backgroundColor: '#fff', borderTopColor: '#DDD' },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          marginBottom: 4,
+          color: '#333',
+        },
       })}
     >
       <Tab.Screen
