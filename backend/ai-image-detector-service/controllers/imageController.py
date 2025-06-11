@@ -12,14 +12,9 @@ def save_to_history(uid: str, id_token: str, prediction: str, probabilities: lis
     url = f"{HISTORY_SERVICE_URL}/history/imageDetector"
     
     # Use the environment variable for service URL
-    service_url = os.getenv('AI_IMAGE_DETECTOR_SERVICE_URL')
-    if not service_url:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="AI_IMAGE_DETECTOR_SERVICE_URL not configured"
-        )
+    port = os.getenv('PORT', 8006)
     
-    image_url = f"{service_url}/images/files/{image_filename}"
+    image_url = f"http://0.0.0.0:{port}/images/files/{image_filename}"
 
     payload = {
         "data": {
@@ -71,7 +66,6 @@ def handle_image_prediction(image_filename: str, raw_id_token: str = None, decod
             uid = decoded_token.get("uid")
             if not uid:
                 raise HTTPException(status_code=401, detail="Invalid token: no uid")
-
             save_to_history(
                 uid=uid,
                 id_token=raw_id_token,
@@ -79,7 +73,6 @@ def handle_image_prediction(image_filename: str, raw_id_token: str = None, decod
                 probabilities=probabilities,
                 image_filename=image_filename
             )
-
         return predicted_label, probabilities_tensor
     except Exception as e:
         print(f"Error in handle_image_prediction: {str(e)}")  # Add logging
