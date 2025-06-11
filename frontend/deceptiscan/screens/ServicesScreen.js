@@ -1,42 +1,57 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from "react-native";
+// ServicesScreen.js
+import React, { useEffect } from 'react';
+import {
+  SafeAreaView,
+  FlatList,
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+  TouchableOpacity,
+} from 'react-native';
+import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 
-const servicesList = [
+const { width } = Dimensions.get('window');
+const CARD_MARGIN = 16;
+const CARD_WIDTH = (width - CARD_MARGIN * 4) / 2; // adjust for even padding
+
+const services = [
   {
-    id: "1",
-    name: "LinkGuard",
-    description: "Analyze suspicious URL links",
-    icon: require("../assets/LinkGuard.png"),
+    id: 'LinkGuard',
+    title: 'LinkGuard',
+    subtitle: 'Analyze suspicious URLs',
+    icon: <Ionicons name="link-outline" size={36} color="#33A1FD" />,
   },
   {
-    id: "2",
-    name: "RealOrRender",
-    description: "Identify AI generated images",
-    icon: require("../assets/RealOrRender.png"),
+    id: 'RealOrRender',
+    title: 'RealOrRender',
+    subtitle: 'Identify AI-generated images',
+    icon: <MaterialCommunityIcons name="image-search-outline" size={36} color="#2E5AAC" />,
   },
   {
-    id: "3",
-    name: "NewsTruth",
-    description: "Filter out fake news articles",
-    icon: require("../assets/NewsTruth.png"),
+    id: 'NewsTruth',
+    title: 'NewsTruth',
+    subtitle: 'Filter fake news articles',
+    icon: <FontAwesome5 name="newspaper" size={36} color="#C14D3E" />,
   },
   {
-    id: "4",
-    name: "ScamSniffer",
-    description: "Check messages from unknown senders",
-    icon: require("../assets/ScamSniffer.png"),
+    id: 'ScamSniffer',
+    title: 'ScamSniffer',
+    subtitle: 'Check messages from unknown senders',
+    icon: <MaterialCommunityIcons name="chat-alert-outline" size={36} color="#3EBF2E" />,
   },
   {
-    id: "5",
-    name: "TeleDigest",
-    description: "Get a quick summary on public telegram groups",
-    icon: require("../assets/TeleDigest.png"),
+    id: 'TeleDigest',
+    title: 'TeleDigest',
+    subtitle: 'Summarize telegram groups',
+    icon: <FontAwesome5 name="telegram-plane" size={36} color="#0088CC" />,
   },
   {
-    id: "6",
-    name: "ScamWise",
-    description: "Check out the resources on current scams",
-    icon: require("../assets/ScamWise.png"),
+    id: 'ScamWise',
+    title: 'ScamWise',
+    subtitle: 'Resources on current scams',
+    icon: <MaterialCommunityIcons name="school-outline" size={36} color="#E4C800" />,
   },
 ];
 
@@ -47,70 +62,77 @@ export default function ServicesScreen({ navigation, route }) {
     }
   }, [route?.params?.screen]);
 
-  const renderServiceItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate(item.name)}
-    >
-      <Image source={item.icon} style={styles.cardIcon} resizeMode="contain" />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardDesc}>{item.description}</Text>
-    </TouchableOpacity>
-  );
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={servicesList}
-        renderItem={renderServiceItem}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-      />
-    </View>
+    <ImageBackground
+      source={require('../assets/bg.png')}
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
+    >
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={services}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => navigation.navigate(item.id)}
+            >
+              <View style={styles.iconWrapper}>{item.icon}</View>
+              <Text style={styles.title}>{item.title}</Text>
+              <Text style={styles.subtitle}>{item.subtitle}</Text>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContainer}
+          columnWrapperStyle={styles.columnWrapper}
+        />
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f2f2f2",
-    paddingTop: 16,
-  },
+  background:    { flex: 1, backgroundColor: '#F0F4F8' },
+  container:     { flex: 1 },
+  header:        {
+                   fontSize: 24,
+                   fontWeight: '600',
+                   color: '#333',
+                   alignSelf: 'center',
+                   marginVertical: 16,
+                  },
   listContainer: {
-    paddingHorizontal: 12,
-    paddingBottom: 20,
-  },
-  card: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    margin: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  cardIcon: {
-    width: 48,
-    height: 48,
-    marginBottom: 12,
-  },
-  cardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 4,
-    textAlign: "center",
-  },
-  cardDesc: {
-    fontSize: 14,
-    color: "#555",
-    textAlign: "center",
-  },
+                   paddingBottom: 20,
+                  },
+  columnWrapper: {
+                   justifyContent: 'space-evenly',
+                   paddingHorizontal: CARD_MARGIN,
+                  },
+  card:          {
+                   width: CARD_WIDTH,
+                   backgroundColor: '#fff',
+                   borderRadius: 16,
+                   padding: 16,
+                   alignItems: 'center',
+                   marginBottom: CARD_MARGIN,
+                   shadowColor: '#000',
+                   shadowOpacity: 0.05,
+                   shadowOffset: { width: 0, height: 3 },
+                   shadowRadius: 6,
+                   elevation: 3,
+                  },
+  iconWrapper:   { marginBottom: 12 },
+  title:         {
+                   fontSize: 16,
+                   fontWeight: '600',
+                   color: '#333',
+                   textAlign: 'center',
+                   marginBottom: 6,
+                  },
+  subtitle:      {
+                   fontSize: 12,
+                   color: '#666',
+                   textAlign: 'center',
+                  },
 });
