@@ -117,12 +117,19 @@ export default function ScamSnifferScreen() {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {result && (
-        <View style={styles.resultBox}>
-          <Text style={styles.resultText}>
+        <View
+          style={[
+            styles.resultBox,
+            result.classification === 'scam'
+              ? styles.scamBox
+              : styles.safeBox,
+          ]}
+        >
+          <Text style={styles.probabilityText}>
             Classification: {result.classification}
           </Text>
-          <Text style={styles.resultText}>
-            Scam Probability: {result.scam_probability}
+          <Text style={styles.probabilityText}>
+            Scam Probability: {(result.scam_probability * 100).toFixed(1)}%
           </Text>
           <Text style={styles.resultText}>
             Summary: {result.summary}
@@ -203,5 +210,32 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 14,
     marginBottom: 8,
+  },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 3,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
+  },
+  probabilityText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#333',
+  },
+  resultText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
   },
 });

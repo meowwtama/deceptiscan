@@ -38,7 +38,7 @@ def analyze_with_groq(message: str) -> dict:
 
                     Output in the JSON file template as provided in the assistant prompt.
                     {{
-                    "classification": "<scam or not scam>",
+                    "classification": "<Scam or Not Scam>",
                     "summary": "<short explanation not reaching 200 words>",
                     "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
@@ -56,7 +56,7 @@ def analyze_with_groq(message: str) -> dict:
                     
                     Output in the JSON file template as provided in the system prompt.
                     {{
-                    "classification": "<scam or not scam>",
+                    "classification": "<Scam or Not Scam>",
                     "summary": "<short explanation not reaching 200 words>",
                     "scam_probability": "<0.0 to 1.0, for confidence level of being a scam>"
                     }}
@@ -78,7 +78,7 @@ def analyze_with_groq(message: str) -> dict:
         summary = parsed.get("summary")
         scam_probability = parsed.get("scam_probability", 0.0)
 
-        if classification not in ("scam", "not scam"):
+        if classification not in ("Scam", "Not Scam"):
             raise ValueError(f"Unexpected classification value: {classification}")
 
         return {"classification": classification, "summary": summary, "scam_probability": scam_probability}
