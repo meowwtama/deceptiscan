@@ -95,14 +95,35 @@ export default function LinkGuardScreen() {
       {error && <Text style={styles.error}>{error}</Text>}
 
       {result && (
-        <View style={styles.resultBox}>
+        <View
+          style={[
+            styles.resultBox,
+            !result.safe
+              ? styles.scamBox
+              : styles.safeBox,
+          ]}
+        >
           <Text style={styles.resultText}>
-            Safety Status: {result.safe ? "Safe" : "Potentially Unsafe"}
+            <Text style={styles.labelText}>Safety Status: </Text>
+            <Text style={result.safe ? styles.safeText : styles.scamText}>
+              {result.safe ? "Safe" : "Potentially Unsafe"}
+            </Text>
+            
           </Text>
           <Text style={styles.resultText}>
             Identified Issues: {result.issues?.length ? result.issues.join(", ") : "None"}
           </Text>
-        </View>
+            <Text style={styles.resultText}>Redirect Details:</Text>
+            {Array.isArray(result.url_chain) && result.url_chain.length > 0 ? (
+              result.url_chain.map((line, idx) => (
+                <Text key={idx} style={styles.resultTextNB}>
+                  • {line}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.resultTextNB}>No redirects detected</Text>
+            )}
+          </View>
       )}
     </ScrollView>
   );
@@ -172,13 +193,44 @@ const styles = StyleSheet.create({
     maxWidth: 400,
   },
   resultText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: 8,
+    color: '#333',
+  },
+  resultTextNB: {
+    fontSize: 16,
+    marginBottom: 8,
+    color: '#333',
   },
   error: {
     marginTop: 12,
     color: 'red',
     textAlign: 'center',
   },
+  resultBox: {
+    marginTop: 20,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 3,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
+  },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
+  },
+  labelText: {
+    color: "#000"
+  }
 });

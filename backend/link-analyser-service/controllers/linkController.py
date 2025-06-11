@@ -112,6 +112,7 @@ def fetch_redirect_chain(url: str, max_hops: int = 5) -> list[dict]:
 def analyze_link(url: str) -> dict:
     issues = []
     chain = fetch_redirect_chain(url)
+    url_chain = [i.get("url", "") for i in chain]
     first = chain[0]
     parsed = urlparse(first["url"])
 
@@ -133,7 +134,7 @@ def analyze_link(url: str) -> dict:
     if len(chain) > 5:
         issues.append(f"Redirect chain length is {len(chain)} (>5)")
 
-    return {"safe": len(issues) == 0, "issues": issues, "redirect_details": chain}
+    return {"safe": len(issues) == 0, "issues": issues, "redirect_details": chain, "url_chain": url_chain}
 
 
 def save_to_history(

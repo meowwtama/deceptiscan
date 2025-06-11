@@ -127,9 +127,9 @@ export default function ScamSnifferScreen() {
         >
           <Text style={styles.probabilityText}>
             <Text style={styles.labelText}>Classification: </Text>
-              <Text style={result.classification === 'Safe' ? styles.safeText : styles.scamText}>
-                {result.classification}
-              </Text>
+            <Text style={result.classification === 'Safe' ? styles.safeText : styles.scamText}>
+              {result.classification}
+            </Text>
           </Text>
           <Text style={styles.probabilityText}>
             Scam Probability: {(result.scam_probability * 100).toFixed(1)}%
