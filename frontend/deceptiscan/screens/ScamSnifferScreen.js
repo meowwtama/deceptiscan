@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { MESSAGE_ANALYSER_SERVICE_URL } from '../config';
+import AnimatedCircularProgress from './AnimatedCircularProgress';
 
 export default function ScamSnifferScreen() {
   const [message, setMessage] = useState('');
@@ -125,14 +126,19 @@ export default function ScamSnifferScreen() {
               : styles.safeBox,
           ]}
         >
+          <Text style={styles.titleText}>
+            Scam Probability: 
+          </Text>
+          {result.scam_probability !== null && (
+            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
+              <AnimatedCircularProgress percentage={result.scam_probability * 100} />
+            </View>
+          )}
           <Text style={styles.probabilityText}>
             <Text style={styles.labelText}>Classification: </Text>
             <Text style={result.classification === 'Safe' ? styles.safeText : styles.scamText}>
               {result.classification}
             </Text>
-          </Text>
-          <Text style={styles.probabilityText}>
-            Scam Probability: {(result.scam_probability * 100).toFixed(1)}%
           </Text>
           <Text style={styles.resultText}>
             Summary: {result.summary}
@@ -225,6 +231,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 8,
     color: '#333',
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#333',
+    textAlign: 'center',
   },
   resultText: {
     fontSize: 14,

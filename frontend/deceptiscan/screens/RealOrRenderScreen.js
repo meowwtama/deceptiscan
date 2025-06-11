@@ -15,6 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../firebaseConfig';
 import { AI_IMAGE_DETECTOR_SERVICE_URL } from '../config';
+import AnimatedCircularProgress from './AnimatedCircularProgress';
 
 export default function RealOrRenderScreen() {
   const [localUri, setLocalUri] = useState(null);
@@ -176,15 +177,19 @@ export default function RealOrRenderScreen() {
               : styles.scamBox,
           ]}
         >
+          <Text style={styles.titleText}>
+            AI Probability
+          </Text>
+          {prediction.probabilities[0][1] !== null && (
+            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
+              <AnimatedCircularProgress percentage={prediction.probabilities[0][1] * 100} />
+            </View>
+          )}
           <Text style={styles.probabilityText}>
             <Text style={styles.labelText}>Label: </Text>
             <Text style={prediction.predicted_label === 'real' ? styles.safeText : styles.scamText}>
               {prediction.predicted_label === 'real' ? 'Real' : 'Not Real'}
             </Text>
-          </Text>
-          
-          <Text style={styles.probabilityText}>
-            AI Probability: {(prediction.probabilities[0][1] * 100).toFixed(1)}%
           </Text>
         </View>
       )}
@@ -276,6 +281,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 8,
     color: '#333',
+  },
+  titleText: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 8,
+    color: '#333',
+    textAlign: 'center'
   },
   resultText: {
     fontSize: 14,

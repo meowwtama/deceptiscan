@@ -12,6 +12,8 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { FAKE_NEWS_DETECTOR_URL } from '../config';
+import AnimatedCircularProgress from './AnimatedCircularProgress';
+
 
 export default function NewsTruthScreen() {
   const [articleUrl, setArticleUrl] = useState('');
@@ -118,17 +120,23 @@ export default function NewsTruthScreen() {
                     classification === 'Fake'
                       ? styles.scamBox
                       : styles.safeBox,]}>
+          {fake_probability !== null && (
+            <>
+            <Text style={styles.titleLabel}>Fake Probability</Text>
+            </>
+          )}
+          {fake_probability !== null && (
+            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
+              <AnimatedCircularProgress percentage={fake_probability * 100} />
+            </View>
+          )}
           {classification && (
             <Text style={styles.resultLabel}>
             <Text style={styles.resultLabel}>Classification: </Text>
             <Text style={classification === 'Real' ? styles.safeText : styles.scamText}>{classification}</Text>
             </Text>
           )}
-          {fake_probability !== null && (
-            <>
-            <Text style={styles.resultLabel}>Fake Probability: {(fake_probability * 100).toFixed(1)}%</Text>
-            </>
-          )}
+
           {result && (
             <Text>
             <Text style={styles.resultTitle}>Analysis: </Text>
@@ -215,6 +223,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
+  },
+  titleLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center'
   },
   resultTitle: {
     fontSize: 14,

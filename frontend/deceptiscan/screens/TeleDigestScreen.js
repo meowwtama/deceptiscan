@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
 import { TELEGRAM_SERVICE_URL } from '../config';  // add this
+import AnimatedCircularProgress from './AnimatedCircularProgress';
 
 export default function TeleDigestScreen() {
   const [groupLink, setGroupLink] = useState('');
@@ -127,16 +128,21 @@ export default function TeleDigestScreen() {
                     scam_classification === 'Scam'
                       ? styles.scamBox
                       : styles.safeBox,]}>
+          {scam_probability !== null && (
+            <>
+            <Text style={styles.titleLabel}>Scam Probability: </Text>
+            </>
+          )}
+          {scam_probability !== null && (
+            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
+              <AnimatedCircularProgress percentage={scam_probability * 100} />
+            </View>
+          )}
           {scam_classification && (
             <Text style={styles.resultLabel}>
             <Text style={styles.resultLabel}>Scam Classification: </Text>
             <Text style={scam_classification === 'Safe' ? styles.safeText : styles.scamText}>{scam_classification}</Text>
             </Text>
-          )}
-          {scam_probability !== null && (
-            <>
-            <Text style={styles.resultLabel}>Scam Probability: {(scam_probability * 100).toFixed(1)}%</Text>
-            </>
           )}
           {summary && (
             <Text>
@@ -225,6 +231,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
+  },
+  titleLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    textAlign: 'center'
   },
   resultText: {
     fontSize: 14,
