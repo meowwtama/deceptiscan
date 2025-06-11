@@ -1,16 +1,25 @@
 import React, { useState } from "react";
-import { ScrollView } from "react-native";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { auth } from "../firebaseConfig";
 import { LINK_ANALYSER_SERVICE_URL } from "../config";
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function LinkGuardScreen() {
+  const { language } = useLanguage();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+
+  const labelUrl = language === 'zh' ? '输入要检查的链接：' : 'Enter a URL to check:';
+  const pasteLabel = language === 'zh' ? '或从剪贴板粘贴：' : 'Or paste from clipboard:';
+  const submitText = language === 'zh' ? '提交' : 'Submit';
+  const statusText = language === 'zh' ? '安全状态：' : 'Safety Status: ';
+  const issuesText = language === 'zh' ? '发现问题：' : 'Identified Issues: ';
+  const redirectsText = language === 'zh' ? '重定向详情：' : 'Redirect Details:';
+  const noRedirectText = language === 'zh' ? '未检测到重定向' : 'No redirects detected';
 
   const handleClipboardPaste = async () => {
     try {
@@ -18,7 +27,7 @@ export default function LinkGuardScreen() {
       if (text) setUrl(text);
     } catch (e) {
       console.error("Clipboard read failed:", e);
-      setError("Failed to read from clipboard.");
+      setError(language === 'zh' ? '无法读取剪贴板。' : 'Failed to read from clipboard.');
     }
   };
 
@@ -30,7 +39,7 @@ export default function LinkGuardScreen() {
 
     try {
       const user = auth.currentUser;
-      if (!user) throw new Error("You must be signed in");
+      if (!user) throw new Error(language === 'zh' ? '您必须先登录。' : 'You must be signed in');
 
       const idToken = await user.getIdToken();
       const response = await fetch(`${LINK_ANALYSER_SERVICE_URL}/link/analyze`, {
@@ -44,7 +53,7 @@ export default function LinkGuardScreen() {
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Error ${response.status}: ${text}`);
+        throw new Error(`${language === 'zh' ? '错误' : 'Error'} ${response.status}: ${text}`);
       }
 
       const data = await response.json();
@@ -63,7 +72,7 @@ export default function LinkGuardScreen() {
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.card}>
-        <Text style={styles.label}>Enter a URL to check:</Text>
+        <Text style={styles.label}>{labelUrl}</Text>
         <TextInput
           style={styles.input}
           placeholder="https://example.com"
@@ -74,7 +83,7 @@ export default function LinkGuardScreen() {
 
         <View style={styles.divider} />
 
-        <Text style={styles.label}>Or paste from clipboard below:</Text>
+        <Text style={styles.label}>{pasteLabel}</Text>
         <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
           <Ionicons name="clipboard-outline" size={40} color="#333" />
         </TouchableOpacity>
@@ -88,7 +97,7 @@ export default function LinkGuardScreen() {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.submitText}>Submit</Text>
+          <Text style={styles.submitText}>{submitText}</Text>
         )}
       </TouchableOpacity>
 
@@ -98,32 +107,35 @@ export default function LinkGuardScreen() {
         <View
           style={[
             styles.resultBox,
-            !result.safe
-              ? styles.scamBox
-              : styles.safeBox,
+            !result.safe ? styles.scamBox : styles.safeBox,
           ]}
         >
           <Text style={styles.resultText}>
-            <Text style={styles.labelText}>Safety Status: </Text>
+            <Text style={styles.labelText}>{statusText}</Text>
             <Text style={result.safe ? styles.safeText : styles.scamText}>
-              {result.safe ? "Safe" : "Potentially Unsafe"}
+              {result.safe 
+                ? (language === 'zh' ? '安全' : 'Safe') 
+                : (language === 'zh' ? '潜在不安全' : 'Potentially Unsafe')}
             </Text>
-            
           </Text>
           <Text style={styles.resultText}>
-            Identified Issues: {result.issues?.length ? result.issues.join(", ") : "None"}
+            <Text style={styles.labelText}>{issuesText}</Text>
+            {result.issues?.length 
+              ? result.issues.join(', ') 
+              : (language === 'zh' ? '无' : 'None')}
           </Text>
-            <Text style={styles.resultText}>Redirect Details:</Text>
-            {Array.isArray(result.url_chain) && result.url_chain.length > 0 ? (
-              result.url_chain.map((line, idx) => (
-                <Text key={idx} style={styles.resultTextNB}>
-                  • {line}
-                </Text>
-              ))
-            ) : (
-              <Text style={styles.resultTextNB}>No redirects detected</Text>
-            )}
-          </View>
+
+          <Text style={styles.resultText}>{redirectsText}</Text>
+          {Array.isArray(result.url_chain) && result.url_chain.length > 0 ? (
+            result.url_chain.map((line, idx) => (
+              <Text key={idx} style={styles.resultTextNB}>
+                • {line}
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.resultTextNB}>{noRedirectText}</Text>
+          )}
+        </View>
       )}
     </ScrollView>
   );
@@ -151,6 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     marginBottom: 10,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
@@ -189,34 +202,26 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
+    borderWidth: 3,
     width: '100%',
     maxWidth: 400,
+    alignSelf: 'center',
   },
   resultText: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     marginBottom: 8,
     color: '#333',
   },
   resultTextNB: {
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: 14,
+    marginBottom: 6,
     color: '#333',
   },
   error: {
     marginTop: 12,
     color: 'red',
     textAlign: 'center',
-  },
-  resultBox: {
-    marginTop: 20,
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    borderWidth: 3,
-    width: '100%',
-    maxWidth: 400,
-    alignSelf: 'center',
   },
   safeBox: {
     borderColor: '#00b300',
@@ -225,12 +230,13 @@ const styles = StyleSheet.create({
     borderColor: '#ff4d4d',
   },
   safeText: {
-  color: 'green',
+    color: 'green',
   },
   scamText: {
     color: 'red',
   },
   labelText: {
-    color: "#000"
-  }
+    color: '#000',
+    fontWeight: '700',
+  },
 });
