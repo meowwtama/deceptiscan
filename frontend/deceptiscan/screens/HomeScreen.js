@@ -1,5 +1,5 @@
 // HomeScreen.js
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -13,7 +13,7 @@ import {
   ScrollView,
   Linking,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";  // ← import MCI here
 import AppLoading from "expo-app-loading";
 import { useFonts, FredokaOne_400Regular } from "@expo-google-fonts/fredoka-one";
 
@@ -29,11 +29,11 @@ const tips = [
   { id: "3", header: "🔧 Get Anti-virus Software!",   image: require("../assets/tip3.jpg") },
 ];
 
-// Top services
+// Top services (now using MaterialCommunityIcons names)
 const topServices = [
-  { id: "NewsTruth",    label: "NewsTruth",    icon: "newspaper" },
+  { id: "NewsTruth",    label: "NewsTruth",    icon: "newspaper-variant-outline" },
   { id: "RealOrRender", label: "RealOrRender", icon: "image-outline" },
-  { id: "ScamSniffer",  label: "ScamSniffer",  icon: "chatbox-alert-outline" },
+  { id: "ScamSniffer",  label: "ScamSniffer",  icon: "chat-alert-outline" },
 ];
 
 // Trending news
@@ -115,7 +115,11 @@ export default function HomeScreen({ navigation }) {
                 style={styles.servicePill}
                 onPress={() => navigation.navigate("Services", { screen: s.id })}
               >
-                <Ionicons name={s.icon} size={22} color="#2575FC" />
+                <MaterialCommunityIcons
+                  name={s.icon}
+                  size={22}
+                  color="#2575FC"
+                />
                 <Text style={styles.serviceText}>{s.label}</Text>
               </TouchableOpacity>
             ))}

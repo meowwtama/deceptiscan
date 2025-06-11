@@ -1,5 +1,6 @@
+// ScamSnifferScreen.js
 import React, { useState } from 'react';
-import { ScrollView } from "react-native";
+import { ScrollView, ImageBackground } from "react-native";
 import {
   View,
   Text,
@@ -21,14 +22,14 @@ export default function ScamSnifferScreen() {
   const [error, setError] = useState(null);
 
   const handleClipboardPaste = async () => {
-      try {
-        const text = await Clipboard.getStringAsync();
-        if (text) setMessage(text);
-      } catch (e) {
-        console.error("Clipboard read failed:", e);
-        setError("Failed to read from clipboard.");
-      }
-    };
+    try {
+      const text = await Clipboard.getStringAsync();
+      if (text) setMessage(text);
+    } catch (e) {
+      console.error("Clipboard read failed:", e);
+      setError("Failed to read from clipboard.");
+    }
+  };
 
   const handleSubmit = async () => {
     if (!message.trim()) {
@@ -41,12 +42,10 @@ export default function ScamSnifferScreen() {
     setResult(null);
 
     try {
-      // 1) get current user & ID token
       const user = auth.currentUser;
       if (!user) throw new Error('You must be signed in');
       const idToken = await user.getIdToken();
 
-      // 2) call your backend
       const resp = await fetch(
         `${MESSAGE_ANALYSER_SERVICE_URL}/message/analyze`,
         {
@@ -75,84 +74,94 @@ export default function ScamSnifferScreen() {
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+    <ImageBackground
+      source={require('../assets/bg.png')}
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
     >
-      <View style={styles.card}>
-        <Text style={styles.label}>
-          Enter a message to check if it is a scam:
-        </Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="e.g. You've won a prize! Click this link..."
-          value={message}
-          onChangeText={setMessage}
-          multiline
-          numberOfLines={4}
-          textAlignVertical="top"
-        />
-
-        <View style={styles.divider} />
-
-        <Text style={styles.label}>
-          Or paste from clipboard below:
-        </Text>
-        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
-          <Ionicons name="clipboard-outline" size={40} color="#333" />
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity
-        style={[styles.submitButton, loading && { opacity: 0.6 }]}
-        onPress={handleSubmit}
-        disabled={loading}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.submitText}>Submit</Text>
-        )}
-      </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.label}>
+            Enter a message to check if it is a scam:
+          </Text>
+          <TextInput
+            style={styles.textArea}
+            placeholder="e.g. You've won a prize! Click this link..."
+            value={message}
+            onChangeText={setMessage}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+          />
 
-      {error && <Text style={styles.error}>{error}</Text>}
+          <View style={styles.divider} />
 
-      {result && (
-        <View
-          style={[
-            styles.resultBox,
-            result.classification === 'Scam'
-              ? styles.scamBox
-              : styles.safeBox,
-          ]}
-        >
-          <Text style={styles.titleText}>
-            Scam Probability: 
+          <Text style={styles.label}>
+            Or paste from clipboard below:
           </Text>
-          {result.scam_probability !== null && (
-            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
-              <AnimatedCircularProgress percentage={result.scam_probability * 100} />
-            </View>
-          )}
-          <Text style={styles.probabilityText}>
-            <Text style={styles.labelText}>Classification: </Text>
-            <Text style={result.classification === 'Safe' ? styles.safeText : styles.scamText}>
-              {result.classification}
-            </Text>
-          </Text>
-          <Text style={styles.resultText}>
-            Summary: {result.summary}
-          </Text>
+          <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
+            <Ionicons name="clipboard-outline" size={40} color="#333" />
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.submitButton, loading && { opacity: 0.6 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>Submit</Text>
+          )}
+        </TouchableOpacity>
+
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        {result && (
+          <View
+            style={[
+              styles.resultBox,
+              result.classification === 'Scam'
+                ? styles.scamBox
+                : styles.safeBox,
+            ]}
+          >
+            <Text style={styles.titleText}>
+              Scam Probability:
+            </Text>
+            {result.scam_probability !== null && (
+              <View style={styles.progressContainer}>
+                <AnimatedCircularProgress percentage={result.scam_probability * 100} />
+              </View>
+            )}
+            <Text style={styles.probabilityText}>
+              <Text style={styles.labelText}>Classification: </Text>
+              <Text style={result.classification === 'Safe' ? styles.safeText : styles.scamText}>
+                {result.classification}
+              </Text>
+            </Text>
+            <Text style={styles.resultText}>
+              Summary: {result.summary}
+            </Text>
+          </View>
+        )}
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: '#F0F4F8',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     padding: 24,
@@ -226,6 +235,11 @@ const styles = StyleSheet.create({
   scamBox: {
     borderColor: '#ff4d4d',
   },
+  progressContainer: {
+    marginTop: -10,
+    marginBottom: 8,
+    alignItems: 'center',
+  },
   probabilityText: {
     fontSize: 18,
     fontWeight: '700',
@@ -245,7 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   safeText: {
-  color: 'green',
+    color: 'green',
   },
   scamText: {
     color: 'red',
