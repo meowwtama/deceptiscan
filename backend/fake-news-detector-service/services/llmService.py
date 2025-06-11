@@ -31,10 +31,10 @@ def news_analyse(prompt: str):
                 {
                     "role" : "system",
                     "content": ("You are a fact-checking assistant. Your job is to assess whether a given news article is likely to be fake or misleading. Consider the tone, exaggeration, logic, evidence, and trustworthiness of the information."
-                                "Return a confidence score between 0 and 100 indicating how confident you are that the article is fake (100 = fully fake). "
+                                "Return a classification whether it is Fake or Real and a confidence score between 0 and 1 indicating how confident you are that the article is fake (100 = fully fake). "
                                 "Also provide a short explanation for your rating.\n\n"
                                 "Format your response strictly as JSON: "
-                                '{"confidence_score": <number>, "explanation": "<your explanation>"}'
+                                '{"classification": "Real or Fake", "fake_probability": <number>, "explanation": "<your explanation>"}'
                     )
                 },
                 {
@@ -52,14 +52,16 @@ def news_analyse(prompt: str):
 
         return {
             "status": "success",
-            "score": parsed.get("confidence_score"),
+            "classification": parsed.get("classification"),
+            "fake_probability": parsed.get("fake_probability"),
             "explanation": parsed.get("explanation")
         }
 
     except Exception as e:
         return {
             "status": "error",
-            "score": None,
+            "classification": None,
+            "fake_probability": None,
             "explanation": None,
             "message": str(e)
         }

@@ -120,7 +120,7 @@ export default function ScamSnifferScreen() {
         <View
           style={[
             styles.resultBox,
-            result.classification === 'scam'
+            result.classification === 'Scam'
               ? styles.scamBox
               : styles.safeBox,
           ]}
@@ -206,10 +206,6 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
-  },
-  resultText: {
-    fontSize: 14,
-    marginBottom: 8,
   },
   resultBox: {
     marginTop: 20,

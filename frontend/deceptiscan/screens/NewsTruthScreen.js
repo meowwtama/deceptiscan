@@ -18,6 +18,8 @@ export default function NewsTruthScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [classification, setClassification] = useState(null);
+  const [fake_probability, setFakeProbability] = useState(null);
 
   const handleClipboardPaste = async () => {
       try {
@@ -38,6 +40,8 @@ export default function NewsTruthScreen() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setClassification(null);
+    setFakeProbability(null);
 
     try {
       const user = auth.currentUser;
@@ -61,7 +65,9 @@ export default function NewsTruthScreen() {
       }
 
       const data = await response.json();
-      setResult(data);
+      setResult(data.explanation);
+      setClassification(data.classification);
+      setFakeProbability(data.fake_probability);
     } catch (err) {
       console.error('NewsTruth error:', err);
       setError(err.message);
@@ -107,16 +113,30 @@ export default function NewsTruthScreen() {
 
       {error && <Text style={styles.error}>{error}</Text>}
 
-      {result && (
-        <View style={styles.resultBox}>
-          <Text style={styles.resultText}>
-            Confidence Score: {result.score}/100
-          </Text>
-          <Text style={styles.resultText}>
-            Analysis: {result.explanation}
-          </Text>
+      {(classification || fake_probability !== null || result) && (
+        <View style={[styles.resultBox,
+                    classification === 'Fake'
+                      ? styles.scamBox
+                      : styles.safeBox,]}>
+          {classification && (
+            <>
+            <Text style={styles.resultLabel}>Classification: {classification}</Text>
+            </>
+          )}
+          {fake_probability !== null && (
+            <>
+            <Text style={styles.resultLabel}>Fake Probability: {fake_probability}</Text>
+            </>
+          )}
+          {result && (
+            <Text>
+            <Text style={styles.resultTitle}>Analysis: </Text>
+            <Text style={styles.resultText}>{result}</Text>
+            </Text>
+          )}
+                
         </View>
-      )}
+            )}
     </ScrollView>
   );
 }
@@ -181,6 +201,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
+    borderWidth: 3,
     width: '100%',
     maxWidth: 400,
   },
@@ -189,9 +210,26 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 8,
   },
+  resultLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  resultTitle: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+    fontWeight: '600',
+  },
   error: {
     marginTop: 12,
     color: 'red',
     textAlign: 'center',
+  },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
   },
 });

@@ -105,7 +105,9 @@ async def analyze_group(request_data: dict, decoded_token: dict):
         uid=uid,
         id_token=raw_id_token,
         group_name=group_name,
-        summary=llm_result["summary"]
+        summary=llm_result["summary"],
+        scam_classification=llm_result["scam_classification"],
+        scam_probability=llm_result["scam_probability"]
     )
 
     # Handling errors from save_to_history
@@ -115,6 +117,8 @@ async def analyze_group(request_data: dict, decoded_token: dict):
 
     return {
         "status": "success",
-        "summary": llm_result["summary"]
+        "summary": llm_result["summary"],
+        "scam_classification":llm_result["scam_classification"],
+        "scam_probability":llm_result["scam_probability"]
     }
 

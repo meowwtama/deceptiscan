@@ -5,7 +5,8 @@ def save_to_history(
     uid: str,
     id_token: str,
     news_url: str,
-    confidence_score: int,
+    classification: str,
+    fake_probability: int,
     explanation: str,
     ):
 
@@ -24,7 +25,8 @@ def save_to_history(
     payload = {
         "data": {
             "news_url": news_url,
-            "confidence_score": confidence_score,
+            "classification": classification,
+            "fake_probability": fake_probability,
             "explanation": explanation,
         }
     }

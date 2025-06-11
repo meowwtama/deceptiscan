@@ -6,6 +6,8 @@ def save_to_history(
     id_token: str,
     group_name: str,
     summary: str,
+    scam_classification: str,
+    scam_probability: int
     ):
 
     """
@@ -24,6 +26,8 @@ def save_to_history(
         "data": {
             "group_name": group_name,
             "summary": summary,
+            "scam_classification":scam_classification,
+            "scam_probability":scam_probability
         }
     }
 

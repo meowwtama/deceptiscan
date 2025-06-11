@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { ScrollView } from "react-native";
 import {
   View,
@@ -18,6 +18,8 @@ export default function TeleDigestScreen() {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState(null);
+  const [scam_classification, setScamClassification] = useState(null);
+  const [scam_probability, setScamProbability] = useState(null);
 
   const handleClipboardPaste = async () => {
     try {
@@ -39,6 +41,8 @@ export default function TeleDigestScreen() {
     setLoading(true);
     setError(null);
     setSummary(null);
+    setScamClassification(null);
+    setScamProbability(null);
 
     try {
       // 1) Get your Firebase ID token
@@ -65,6 +69,8 @@ export default function TeleDigestScreen() {
       }
       const json = await resp.json();
       setSummary(json.summary);
+      setScamClassification(json.scam_classification);
+      setScamProbability(json.scam_probability)
     } catch (err) {
       console.error('TeleDigest error:', err);
       setError(err.message);
@@ -116,10 +122,28 @@ export default function TeleDigestScreen() {
 
       {error && <Text style={styles.error}>{error}</Text>}
 
-      {summary && (
-        <View style={styles.resultBox}>
-          <Text style={styles.resultLabel}>Group Summary:</Text>
-          <Text style={styles.resultText}>{summary}</Text>
+      {(scam_classification || scam_probability !== null || summary) && (
+        <View style={[styles.resultBox,
+                    scam_classification === 'Scam'
+                      ? styles.scamBox
+                      : styles.safeBox,]}>
+          {scam_classification && (
+            <>
+            <Text style={styles.resultLabel}>Scam Classification: {scam_classification}</Text>
+            </>
+          )}
+          {scam_probability !== null && (
+            <>
+            <Text style={styles.resultLabel}>Scam Probability: {scam_probability}</Text>
+            </>
+          )}
+          {summary && (
+            <Text>
+            <Text style={styles.resultTitle}>Group Summary: </Text>
+            <Text style={styles.resultText}>{summary}</Text>
+            </Text>
+          )}
+          
         </View>
       )}
     </ScrollView>
@@ -192,15 +216,28 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff',
     borderRadius: 8,
+    borderWidth: 3,
     width: '100%',
     maxWidth: 400,
   },
   resultLabel: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
   },
   resultText: {
     fontSize: 14,
+  },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
+  },
+  resultTitle: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 8,
+    fontWeight: '600',
   },
 });

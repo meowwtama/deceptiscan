@@ -44,7 +44,7 @@ def preprocess_article(scrape_result: dict) -> dict:
     prompt = (
         f"You are a fake news detection expert.\n"
         f"Analyze the following article and assess how likely it is to contain misinformation or fake news.\n"
-        f"Provide a confidence score from 0 (definitely real) to 100 (definitely fake), and explain your reasoning in no more than 100 words.\n\n"
+        f"Provide a classification whether it is Real or Fake and a confidence score from 0 (definitely real) to 1 (definitely fake), and explain your reasoning in no more than 100 words.\n\n"
         f"Title: {title}\n\n"
         f"Article:\n{base_text}"
     )

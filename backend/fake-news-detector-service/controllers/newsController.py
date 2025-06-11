@@ -78,7 +78,8 @@ def analyze_article_flow(request_data: dict, decoded_token: dict):
         uid=uid,
         id_token=raw_id_token,
         news_url=url,
-        confidence_score=result["score"],
+        classification=result["classification"],
+        fake_probability=result["fake_probability"],
         explanation=result["explanation"]
     )
 
@@ -88,7 +89,8 @@ def analyze_article_flow(request_data: dict, decoded_token: dict):
 
     return {
         "status": "success",
-        "score": result["score"],
+        "classification": result["classification"],
+        "fake_probability": result["fake_probability"],
         "explanation": result["explanation"],
         "title": title
     }

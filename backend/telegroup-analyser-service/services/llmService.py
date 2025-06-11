@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 from groq import Groq
+import json
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -20,6 +21,8 @@ def tele_analyse(message: str):
         dict: {
             "status": "success" | "error",
             "summary": str | None - Generated summary if successful,
+            "scam_classification": str | None - Classification of group whether scam or not scam if successful,
+            "scam_probability": int | None - Scam probability of group if successful
             "message": str (only if error) - Description of the exception
         }
     """
@@ -33,23 +36,35 @@ def tele_analyse(message: str):
                 },
                 {
                     "role" : "user",
-                    "content" : f"""You are an expert in analyzing Telegram group messages. Summarize what the group is about in 1-2 sentences. \n\nMessages:\n{message}"""
+                    "content" : ("You are an expert in analyzing Telegram group messages. "
+                    "Summarize what the group is about in 1-2 sentences." 
+                    "Also provide whether the channel is Scam or Not Scam and provide the probability that it is a scam (0-1 whether it is a scam)."
+                    f"""Messages:\n{message}."""
+                    "Format your response strictly as JSON: "
+                    '{"summary": <summary of the group>, "classification": <Scam or Not Scam>, "scam_probability":<probability that the group is a scam>}'
+                    )
                 }
             ],
             temperature=0.3,
             max_tokens=128,
         )
 
-        summary = response.choices[0].message.content
+        raw_output = response.choices[0].message.content.strip()
+
+        parsed = json.loads(raw_output)
 
         return {
             "status":"success",
-            "summary":summary
+            "summary":parsed.get("summary"),
+            "scam_classification":parsed.get("classification"),
+            "scam_probability":parsed.get("scam_probability")
         }
     
     except Exception as e:
         return {
             "status": "error",
             "summary": None,
+            "scam_classification": None,
+            "scam_probability": None,
             "message": str(e)
         }
