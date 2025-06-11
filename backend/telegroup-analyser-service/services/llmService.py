@@ -38,10 +38,10 @@ def tele_analyse(message: str):
                     "role" : "user",
                     "content" : ("You are an expert in analyzing Telegram group messages. "
                     "Summarize what the group is about in 1-2 sentences." 
-                    "Also provide whether the channel is Scam or Not Scam and provide the probability that it is a scam (0-1 whether it is a scam)."
+                    "Also provide whether the channel is Scam or Safe and provide the probability that it is a scam (0-1 whether it is a scam)."
                     f"""Messages:\n{message}."""
                     "Format your response strictly as JSON: "
-                    '{"summary": <summary of the group>, "classification": <Scam or Not Scam>, "scam_probability":<probability that the group is a scam>}'
+                    '{"summary": <summary of the group>, "classification": <Scam or Safe>, "scam_probability":<probability that the group is a scam>}'
                     )
                 }
             ],

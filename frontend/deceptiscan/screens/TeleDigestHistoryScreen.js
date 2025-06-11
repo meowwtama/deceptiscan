@@ -67,6 +67,11 @@ export default function TeleDigestHistoryScreen() {
     return (
       <View style={styles.historyCard}>
         <Text style={styles.groupText}>Group: {item.group_name}</Text>
+        <Text style={styles.groupText}>
+        <Text style={styles.groupText}>Scam Classification: </Text>
+        <Text style={item.scam_classification === 'Safe' ? styles.safeText : styles.scamText}>{item.scam_classification}</Text>
+        </Text>
+        <Text style={styles.groupText}>Scam Probability: {(item.scam_probability * 100).toFixed(1)}%</Text>
         <Text style={styles.summaryText}>Summary: {item.summary}</Text>
         <Text style={styles.dateText}>{dateString}</Text>
       </View>
@@ -151,5 +156,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#666",
     marginTop: 32,
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });

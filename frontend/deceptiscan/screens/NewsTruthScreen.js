@@ -119,13 +119,14 @@ export default function NewsTruthScreen() {
                       ? styles.scamBox
                       : styles.safeBox,]}>
           {classification && (
-            <>
-            <Text style={styles.resultLabel}>Classification: {classification}</Text>
-            </>
+            <Text style={styles.resultLabel}>
+            <Text style={styles.resultLabel}>Classification: </Text>
+            <Text style={classification === 'Real' ? styles.safeText : styles.scamText}>{classification}</Text>
+            </Text>
           )}
           {fake_probability !== null && (
             <>
-            <Text style={styles.resultLabel}>Fake Probability: {fake_probability}</Text>
+            <Text style={styles.resultLabel}>Fake Probability: {(fake_probability * 100).toFixed(1)}%</Text>
             </>
           )}
           {result && (
@@ -231,5 +232,11 @@ const styles = StyleSheet.create({
   },
   scamBox: {
     borderColor: '#ff4d4d',
+  },
+  safeText: {
+  color: 'green',
+  },
+  scamText: {
+    color: 'red',
   },
 });
