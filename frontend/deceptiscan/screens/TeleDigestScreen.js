@@ -1,17 +1,10 @@
-import React, { use, useState } from 'react';
-import { ScrollView } from "react-native";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-} from 'react-native';
+// TeleDigestScreen.js
+import React, { useState } from 'react';
+import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ImageBackground } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from "expo-clipboard";
 import { auth } from '../firebaseConfig';
-import { TELEGRAM_SERVICE_URL } from '../config';  // add this
+import { TELEGRAM_SERVICE_URL } from '../config';
 import AnimatedCircularProgress from './AnimatedCircularProgress';
 
 export default function TeleDigestScreen() {
@@ -46,12 +39,10 @@ export default function TeleDigestScreen() {
     setScamProbability(null);
 
     try {
-      // 1) Get your Firebase ID token
       const user = auth.currentUser;
       if (!user) throw new Error('You must be signed in.');
       const idToken = await user.getIdToken();
 
-      // 2) POST to your FastAPI service
       const resp = await fetch(
         `${TELEGRAM_SERVICE_URL}/telegram/analyze`,
         {
@@ -71,7 +62,7 @@ export default function TeleDigestScreen() {
       const json = await resp.json();
       setSummary(json.summary);
       setScamClassification(json.scam_classification);
-      setScamProbability(json.scam_probability)
+      setScamProbability(json.scam_probability);
     } catch (err) {
       console.error('TeleDigest error:', err);
       setError(err.message);
@@ -81,86 +72,96 @@ export default function TeleDigestScreen() {
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+    <ImageBackground
+      source={require('../assets/bg.png')}
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
     >
-      <View style={styles.card}>
-        <Text style={styles.label}>
-          Enter a public group's t.me link:
-        </Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="e.g. scamgroup"
-          value={groupLink}
-          onChangeText={setGroupLink}
-          multiline
-          numberOfLines={2}
-          textAlignVertical="top"
-        />
-
-        <View style={styles.divider} />
-
-        <Text style={styles.label}>
-          Or paste from clipboard below:
-        </Text>
-        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
-          <Ionicons name="clipboard-outline" size={40} color="#333" />
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity
-        style={[styles.submitButton, loading && { opacity: 0.6 }]}
-        onPress={handleSubmit}
-        disabled={loading}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.submitText}>Submit</Text>
-        )}
-      </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.label}>
+            Enter a public group's t.me link:
+          </Text>
+          <TextInput
+            style={styles.textArea}
+            placeholder="e.g. scamgroup"
+            value={groupLink}
+            onChangeText={setGroupLink}
+            multiline
+            numberOfLines={2}
+            textAlignVertical="top"
+          />
 
-      {error && <Text style={styles.error}>{error}</Text>}
+          <View style={styles.divider} />
 
-      {(scam_classification || scam_probability !== null || summary) && (
-        <View style={[styles.resultBox,
-                    scam_classification === 'Scam'
-                      ? styles.scamBox
-                      : styles.safeBox,]}>
-          {scam_probability !== null && (
-            <>
-            <Text style={styles.titleLabel}>Scam Probability: </Text>
-            </>
-          )}
-          {scam_probability !== null && (
-            <View style={{ marginTop: -10, marginBottom: 8, alignItems: "center" }}>
-              <AnimatedCircularProgress percentage={scam_probability * 100} />
-            </View>
-          )}
-          {scam_classification && (
-            <Text style={styles.resultLabel}>
-            <Text style={styles.resultLabel}>Scam Classification: </Text>
-            <Text style={scam_classification === 'Safe' ? styles.safeText : styles.scamText}>{scam_classification}</Text>
-            </Text>
-          )}
-          {summary && (
-            <Text>
-            <Text style={styles.resultTitle}>Group Summary: </Text>
-            <Text style={styles.resultText}>{summary}</Text>
-            </Text>
-          )}
-          
+          <Text style={styles.label}>
+            Or paste from clipboard below:
+          </Text>
+          <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
+            <Ionicons name="clipboard-outline" size={40} color="#333" />
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+
+        <TouchableOpacity
+          style={[styles.submitButton, loading && { opacity: 0.6 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>Submit</Text>
+          )}
+        </TouchableOpacity>
+
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        {(scam_classification || scam_probability !== null || summary) && (
+          <View style={[
+              styles.resultBox,
+              scam_classification === 'Scam' ? styles.scamBox : styles.safeBox,
+            ]}
+          >
+            {scam_probability !== null && (
+              <>
+                <Text style={styles.titleLabel}>Scam Probability:</Text>
+                <View style={styles.progressContainer}>
+                  <AnimatedCircularProgress percentage={scam_probability * 100} />
+                </View>
+              </>
+            )}
+            {scam_classification && (
+              <Text style={styles.resultLabel}>
+                <Text style={styles.resultLabel}>Scam Classification: </Text>
+                <Text style={scam_classification === 'Safe' ? styles.safeText : styles.scamText}>
+                  {scam_classification}
+                </Text>
+              </Text>
+            )}
+            {summary && (
+              <Text>
+                <Text style={styles.resultTitle}>Group Summary: </Text>
+                <Text style={styles.resultText}>{summary}</Text>
+              </Text>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: '#F0F4F8',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     padding: 24,
@@ -227,6 +228,11 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 400,
   },
+  progressContainer: {
+    marginTop: -10,
+    marginBottom: 8,
+    alignItems: 'center',
+  },
   resultLabel: {
     fontSize: 18,
     fontWeight: '600',
@@ -236,16 +242,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 8,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   resultText: {
     fontSize: 14,
-  },
-  safeBox: {
-    borderColor: '#00b300',
-  },
-  scamBox: {
-    borderColor: '#ff4d4d',
   },
   resultTitle: {
     fontSize: 14,
@@ -253,8 +253,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontWeight: '600',
   },
+  safeBox: {
+    borderColor: '#00b300',
+  },
+  scamBox: {
+    borderColor: '#ff4d4d',
+  },
   safeText: {
-  color: 'green',
+    color: 'green',
   },
   scamText: {
     color: 'red',

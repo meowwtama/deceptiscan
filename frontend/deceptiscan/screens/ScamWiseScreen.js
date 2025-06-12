@@ -1,3 +1,4 @@
+// ScamWiseScreen.js
 import React from 'react';
 import {
   View,
@@ -6,7 +7,8 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  Alert
+  Alert,
+  ImageBackground,      // ← import ImageBackground
 } from 'react-native';
 
 const resources = [
@@ -73,24 +75,35 @@ export default function ScamWiseScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Education Resources that can help against scams</Text>
-      <FlatList
-        data={resources}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    <ImageBackground
+      source={require('../assets/bg.png')}      // ← background image
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
+    >
+      <View style={styles.container}>
+        <Text style={styles.header}>
+          Education Resources that can help against scams
+        </Text>
+        <FlatList
+          data={resources}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+    </ImageBackground>
   );
 }
 
-// Your existing styles remain the same
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: '#F0F4F8',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: 'transparent',  // ← make transparent so bg shows
     paddingTop: 12,
     paddingHorizontal: 16,
   },

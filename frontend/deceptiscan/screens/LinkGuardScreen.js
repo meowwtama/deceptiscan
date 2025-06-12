@@ -1,5 +1,6 @@
+// LinkGuardScreen.js
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ImageBackground } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { auth } from "../firebaseConfig";
@@ -83,84 +84,94 @@ export default function LinkGuardScreen() {
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.scrollContent}
+    <ImageBackground
+      source={require('../assets/bg.png')}
+      style={styles.background}
+      imageStyle={{ opacity: 0.1 }}
     >
-      <View style={styles.card}>
-        <Text style={styles.label}>{labelUrl}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="https://example.com"
-          autoCapitalize="none"
-          value={url}
-          onChangeText={setUrl}
-        />
-
-        <View style={styles.divider} />
-
-        <Text style={styles.label}>{pasteLabel}</Text>
-        <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
-          <Ionicons name="clipboard-outline" size={40} color="#333" />
-        </TouchableOpacity>
-      </View>
-
-      <TouchableOpacity 
-        style={[styles.submitButton, loading && { opacity: 0.6 }]}
-        onPress={handleSubmit}
-        disabled={loading}
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
       >
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.submitText}>{submitText}</Text>
-        )}
-      </TouchableOpacity>
+        <View style={styles.card}>
+          <Text style={styles.label}>{labelUrl}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="https://example.com"
+            autoCapitalize="none"
+            value={url}
+            onChangeText={setUrl}
+          />
 
-      {error && <Text style={styles.error}>{error}</Text>}
+          <View style={styles.divider} />
 
-      {result && (
-        <View
-          style={[
-            styles.resultBox,
-            !result.safe ? styles.scamBox : styles.safeBox,
-          ]}
-        >
-          <Text style={styles.resultText}>
-            <Text style={styles.labelText}>{statusText}</Text>
-            <Text style={result.safe ? styles.safeText : styles.scamText}>
-              {result.safe 
-                ? (language === 'zh' ? '安全' : 'Safe') 
-                : (language === 'zh' ? '潜在不安全' : 'Potentially Unsafe')}
-            </Text>
-          </Text>
-          <Text style={styles.resultText}>
-            <Text style={styles.labelText}>{issuesText}</Text>
-            {result.issues?.length 
-              ? result.issues.join(', ') 
-              : (language === 'zh' ? '无' : 'None')}
-          </Text>
-
-          <Text style={styles.resultText}>{redirectsText}</Text>
-          {Array.isArray(result.url_chain) && result.url_chain.length > 0 ? (
-            result.url_chain.map((line, idx) => (
-              <Text key={idx} style={styles.resultTextNB}>
-                • {line}
-              </Text>
-            ))
-          ) : (
-            <Text style={styles.resultTextNB}>{noRedirectText}</Text>
-          )}
+          <Text style={styles.label}>{pasteLabel}</Text>
+          <TouchableOpacity style={styles.clipboardBox} onPress={handleClipboardPaste}>
+            <Ionicons name="clipboard-outline" size={40} color="#333" />
+          </TouchableOpacity>
         </View>
-      )}
-    </ScrollView>
+
+        <TouchableOpacity 
+          style={[styles.submitButton, loading && { opacity: 0.6 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.submitText}>{submitText}</Text>
+          )}
+        </TouchableOpacity>
+
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        {result && (
+          <View
+            style={[
+              styles.resultBox,
+              !result.safe ? styles.scamBox : styles.safeBox,
+            ]}
+          >
+            <Text style={styles.resultText}>
+              <Text style={styles.labelText}>{statusText}</Text>
+              <Text style={result.safe ? styles.safeText : styles.scamText}>
+                {result.safe 
+                  ? (language === 'zh' ? '安全' : 'Safe') 
+                  : (language === 'zh' ? '潜在不安全' : 'Potentially Unsafe')}
+              </Text>
+            </Text>
+            <Text style={styles.resultText}>
+              <Text style={styles.labelText}>{issuesText}</Text>
+              {result.issues?.length 
+                ? result.issues.join(', ') 
+                : (language === 'zh' ? '无' : 'None')}
+            </Text>
+
+            <Text style={styles.resultText}>{redirectsText}</Text>
+            {Array.isArray(result.url_chain) && result.url_chain.length > 0 ? (
+              result.url_chain.map((line, idx) => (
+                <Text key={idx} style={styles.resultTextNB}>
+                  • {line}
+                </Text>
+              ))
+            ) : (
+              <Text style={styles.resultTextNB}>{noRedirectText}</Text>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    backgroundColor: '#F0F4F8',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#D9D9D9',
+    backgroundColor: 'transparent',
   },
   scrollContent: {
     padding: 24,
