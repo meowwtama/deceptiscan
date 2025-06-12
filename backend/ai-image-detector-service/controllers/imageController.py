@@ -7,14 +7,13 @@ HISTORY_SERVICE_URL = os.getenv("HISTORY_SERVICE_URL", "http://0.0.0.0:8004")
 if not HISTORY_SERVICE_URL.endswith("/"):
     HISTORY_SERVICE_URL = HISTORY_SERVICE_URL.rstrip("/")
 
+url = f"{HISTORY_SERVICE_URL}/history/imageDetector"
+
 def save_to_history(uid: str, id_token: str, prediction: str, probabilities: list, image_filename: str):
     """Save the image prediction result to the History Service."""
-    url = f"{HISTORY_SERVICE_URL}/history/imageDetector"
+    service_url = os.getenv('AI_IMAGE_DETECTOR_SERVICE_URL', 'http://192.168.196.38:8006')
     
-    # Use the environment variable for service URL
-    port = os.getenv('PORT', 8006)
-    
-    image_url = f"http://0.0.0.0:{port}/images/files/{image_filename}"
+    image_url = f"{service_url}/images/files/{image_filename}"
 
     payload = {
         "data": {
