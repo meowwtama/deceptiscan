@@ -36,7 +36,7 @@ const topServices = [
 ];
 
 const trending = [
-  { id: '1', title: 'Latest scams in Singapore', subtitle: 'ScamTracker', image: require('../assets/news1.avif'), url: 'https://www.straitstimes.com/...' },
+  { id: '1', title: 'Latest scams in Singapore', subtitle: 'ScamTracker', image: require('../assets/news1.avif'), url: 'https://www.straitstimes.com/singapore/scam-tracker-what-are-the-latest-trends-in-spore-and-how-much-money-has-been-lost' },
   { id: '2', title: 'Bank SMS Scam Targets Seniors', subtitle: 'Daily News', image: require('../assets/news2.png'), url: 'https://example.com/2' },
   { id: '3', title: '5 Tips to Harden Your Wi-Fi', subtitle: 'Tech Today', image: require('../assets/wifirouter.jpg'), url: 'https://example.com/3' },
 ];
